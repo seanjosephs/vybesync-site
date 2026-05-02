@@ -10,6 +10,7 @@
 
 <style>
   *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   html, body {
     margin: 0; padding: 0;
     min-height: 100vh;
@@ -172,6 +173,38 @@
   .cta-secondary:hover { border-color: var(--vs-purple-electric); }
 
   @keyframes fade-up { to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Scroll indicator (sits below CTAs, signals more below) ─── */
+  .scroll-indicator {
+    margin-top: 32px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--vs-fg-muted);
+    text-decoration: none;
+    opacity: 0;
+    transition: color 0.2s ease;
+    cursor: pointer;
+  }
+  .scroll-indicator.in {
+    animation: fade-up 0.6s ease 2.8s forwards,
+               scroll-bounce 2.4s ease-in-out 3.4s infinite;
+  }
+  .scroll-indicator:hover { color: var(--vs-purple-electric); }
+  .scroll-label {
+    font: 300 11px/1 var(--vs-font);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+  }
+  .scroll-arrow {
+    font: 300 18px/1 var(--vs-font);
+    display: block;
+  }
+  @keyframes scroll-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(6px); }
+  }
 
   /* ── FRAME (the thesis) ──────────────────────────────────── */
   .frame {
@@ -464,10 +497,14 @@
         Score on Replit
       </a>
     </div>
+    <a href="#frame" class="scroll-indicator" id="scroll-indicator" aria-label="Scroll to read more">
+      <span class="scroll-label">keep going</span>
+      <span class="scroll-arrow">↓</span>
+    </a>
   </section>
 
   <!-- ── FRAME ───────────────────────────────────────────────── -->
-  <section class="frame">
+  <section class="frame" id="frame">
     <p>Replit just democratized who gets to build software.</p>
     <p><span class="accent">vybesync</span> is what democratized creation looks like when it lands inside a venue.</p>
     <p>Live music and performing arts run on the labor of people whose job is to be invisible. Security. Door staff. Production crews. Ushers. The GM running on three hours of sleep. They are the lifeblood of every room you&rsquo;ve ever loved, and they have been quietly paying the cost of bad operations software for forty years.</p>
@@ -593,7 +630,7 @@
   // Entry animation
   window.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
-      ['bath-title', 'bath-eyebrow', 'wave', 'logo', 'tagline', 'cta-row'].forEach(id => {
+      ['bath-title', 'bath-eyebrow', 'wave', 'logo', 'tagline', 'cta-row', 'scroll-indicator'].forEach(id => {
         document.getElementById(id).classList.add('in');
       });
     });
