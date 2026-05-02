@@ -1,903 +1,465 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>vybesync · Replit 10 Buildathon</title>
-  <meta name="description"
-    content="vybesync at the Replit 10 Buildathon. Building in public. May 2–3, 2026. Using Free Agent. Democratizing creation.">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="colors_and_type.css">
-
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: var(--vs-bg);
-      color: var(--vs-fg);
-      font: var(--vs-body);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    section {
-      width: 100%;
-      max-width: 720px;
-      padding: 0 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    /* ── HERO ─────────────────────────────────────────────────── */
-    .hero {
-      min-height: 100vh;
-      gap: 24px;
-      padding-top: 60px;
-      padding-bottom: 60px;
-    }
-
-    .buildathon-title {
-      font: 600 clamp(28px, 5vw, 56px)/1 var(--vs-font);
-      letter-spacing: -0.02em;
-      color: var(--vs-fg);
-      margin: 0;
-      opacity: 0;
-      transform: translateY(8px);
-    }
-
-    .buildathon-title.in {
-      animation: fade-up 0.7s ease 0.2s forwards;
-    }
-
-    .buildathon-title .accent {
-      color: var(--vs-orange);
-    }
-
-    .eyebrow-bath {
-      font: 400 clamp(11px, 1vw, 13px)/1.4 var(--vs-font);
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--vs-fg-muted);
-      margin: 0;
-      opacity: 0;
-      transform: translateY(6px);
-    }
-
-    .eyebrow-bath.in {
-      animation: fade-up 0.6s ease 0.6s forwards;
-    }
-
-    .eyebrow-bath .em {
-      color: var(--vs-purple-electric);
-    }
-
-    .wave-wrap {
-      position: relative;
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
-    .wave {
-      width: clamp(220px, 30vw, 320px);
-      height: auto;
-      display: block;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: filter 0.3s ease;
-    }
-
-    .wave.in {
-      animation:
-        wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.9s forwards,
-        wave-undulate 6s ease-in-out 2.5s infinite;
-    }
-
-    .wave-wrap:hover .wave {
-      filter: drop-shadow(0 0 22px rgba(184, 77, 255, 0.4)) drop-shadow(0 0 14px rgba(255, 106, 0, 0.36));
-    }
-
-    @keyframes wave-in {
-      0% {
-        opacity: 0;
-        transform: translateY(8px) scaleY(0.06);
-      }
-
-      35% {
-        opacity: 0.6;
-        transform: translateY(4px) scaleY(0.32);
-      }
-
-      65% {
-        opacity: 1;
-        transform: translateY(0) scaleY(0.7);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translateY(0) scaleY(1);
-      }
-    }
-
-    @keyframes wave-undulate {
-      0% {
-        transform: translateY(0) scale(1) rotate(0deg);
-      }
-
-      25% {
-        transform: translateY(-3px) scale(1.04, 0.97) rotate(-0.4deg);
-      }
-
-      50% {
-        transform: translateY(-1px) scale(1.06, 1.02) rotate(0deg);
-      }
-
-      75% {
-        transform: translateY(-3px) scale(1.04, 0.97) rotate(0.4deg);
-      }
-
-      100% {
-        transform: translateY(0) scale(1) rotate(0deg);
-      }
-    }
-
-    .logo-img {
-      width: clamp(180px, 26vw, 280px);
-      height: auto;
-      display: block;
-      opacity: 0;
-      transform: translateY(8px);
-    }
-
-    .logo-img.in {
-      animation: fade-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.6s forwards;
-    }
-
-    .tagline {
-      font: 400 18px/1.4 var(--vs-font);
-      color: var(--vs-fg);
-      margin: 0;
-      opacity: 0;
-      transform: translateY(6px);
-    }
-
-    .tagline.in {
-      animation: fade-up 0.6s ease 2.0s forwards;
-    }
-
-    .cta-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 16px;
-      opacity: 0;
-      transform: translateY(6px);
-    }
-
-    .cta-row.in {
-      animation: fade-up 0.6s ease 2.4s forwards;
-    }
-
-    .cta-primary {
-      background: var(--vs-grad-purple);
-      color: #fff;
-      border: none;
-      font: 600 15px/1 var(--vs-font);
-      padding: 14px 24px;
-      border-radius: var(--vs-radius-pill);
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.1s ease, opacity 0.15s ease;
-    }
-
-    .cta-primary:hover {
-      opacity: 0.92;
-    }
-
-    .cta-primary:active {
-      transform: scale(0.97);
-    }
-
-    .cta-secondary {
-      background: transparent;
-      color: var(--vs-fg);
-      border: 1px solid var(--vs-border-bright);
-      font: 400 15px/1 var(--vs-font);
-      padding: 14px 22px;
-      border-radius: var(--vs-radius-pill);
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      transition: border-color 0.15s ease;
-    }
-
-    .cta-secondary:hover {
-      border-color: var(--vs-purple-electric);
-    }
-
-    @keyframes fade-up {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ── Scroll indicator (sits below CTAs, signals more below) ─── */
-    .scroll-indicator {
-      margin-top: 32px;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      color: var(--vs-fg-muted);
-      text-decoration: none;
-      opacity: 0;
-      transition: color 0.2s ease;
-      cursor: pointer;
-    }
-
-    .scroll-indicator.in {
-      animation: fade-up 0.6s ease 2.8s forwards,
-        scroll-bounce 2.4s ease-in-out 3.4s infinite;
-    }
-
-    .scroll-indicator:hover {
-      color: var(--vs-purple-electric);
-    }
-
-    .scroll-label {
-      font: 300 11px/1 var(--vs-font);
-      text-transform: uppercase;
-      letter-spacing: 0.22em;
-    }
-
-    .scroll-arrow {
-      font: 300 18px/1 var(--vs-font);
-      display: block;
-    }
-
-    @keyframes scroll-bounce {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(6px);
-      }
-    }
-
-    /* ── FRAME (the thesis) ──────────────────────────────────── */
-    .frame {
-      min-height: 80vh;
-      padding-top: 80px;
-      padding-bottom: 80px;
-    }
-
-    .frame p {
-      font: 300 clamp(17px, 1.6vw, 20px)/1.65 var(--vs-font);
-      color: var(--vs-fg);
-      max-width: 60ch;
-      margin: 0 0 24px 0;
-      text-align: left;
-    }
-
-    .frame p:last-child {
-      margin-bottom: 0;
-    }
-
-    .frame .accent {
-      color: var(--vs-orange);
-    }
-
-    .frame .em {
-      color: var(--vs-purple-electric);
-    }
-
-    /* ── DELTA ───────────────────────────────────────────────── */
-    .delta {
-      min-height: 100vh;
-      padding-top: 100px;
-      padding-bottom: 100px;
-      gap: 56px;
-    }
-
-    .delta-block {
-      width: 100%;
-      max-width: 60ch;
-      text-align: left;
-    }
-
-    .delta-label {
-      font: 600 clamp(14px, 1.3vw, 16px)/1.2 var(--vs-font);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin: 0 0 16px 0;
-    }
-
-    .delta-label.now {
-      color: var(--vs-fg-muted);
-    }
-
-    .delta-label.target {
-      color: var(--vs-purple-electric);
-    }
-
-    .delta ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .delta li {
-      font: 300 clamp(15px, 1.4vw, 17px)/1.6 var(--vs-font);
-      color: var(--vs-fg);
-      padding: 8px 0 8px 22px;
-      position: relative;
-    }
-
-    .delta li::before {
-      content: '·';
-      position: absolute;
-      left: 6px;
-      color: var(--vs-orange);
-      font-weight: 700;
-    }
-
-    .delta-final {
-      font: 400 italic clamp(17px, 1.5vw, 19px)/1.5 var(--vs-font);
-      color: var(--vs-fg);
-      text-align: center;
-      max-width: 50ch;
-      margin: 0;
-    }
-
-    /* ── COMMITMENTS ─────────────────────────────────────────── */
-    .commitments {
-      min-height: 100vh;
-      padding-top: 100px;
-      padding-bottom: 100px;
-      gap: 40px;
-    }
-
-    .commit-block {
-      max-width: 56ch;
-      text-align: left;
-    }
-
-    .commit-block h3 {
-      font: 500 clamp(18px, 1.7vw, 21px)/1.3 var(--vs-font);
-      color: var(--vs-purple-electric);
-      margin: 0 0 12px 0;
-      letter-spacing: -0.01em;
-    }
-
-    .commit-block p {
-      font: 300 clamp(15px, 1.4vw, 16px)/1.65 var(--vs-font);
-      color: var(--vs-fg);
-      margin: 0 0 8px 0;
-    }
-
-    .commit-block em {
-      color: var(--vs-fg-muted);
-      font-style: italic;
-    }
-
-    .imagine {
-      max-width: 56ch;
-      text-align: left;
-      border-left: 2px solid var(--vs-orange);
-      padding-left: 20px;
-      margin-top: 20px;
-    }
-
-    .imagine p {
-      font: 300 clamp(15px, 1.4vw, 16px)/1.65 var(--vs-font);
-      color: var(--vs-fg);
-      margin: 0 0 14px 0;
-    }
-
-    .imagine p:last-child {
-      margin: 0;
-    }
-
-    .imagine strong {
-      font-weight: 500;
-      color: var(--vs-orange);
-    }
-
-    /* ── SOUL ────────────────────────────────────────────────── */
-    .soul {
-      min-height: 80vh;
-      padding-top: 80px;
-      padding-bottom: 80px;
-      gap: 32px;
-    }
-
-    .soul .blockquote {
-      font: 300 clamp(17px, 1.6vw, 20px)/1.65 var(--vs-font);
-      color: var(--vs-fg);
-      max-width: 60ch;
-      margin: 0;
-      text-align: left;
-      border-left: 2px solid var(--vs-purple);
-      padding-left: 24px;
-    }
-
-    .soul .blockquote em {
-      font-style: italic;
-      font-weight: 300;
-    }
-
-    .soul .blockquote .accent {
-      color: var(--vs-orange);
-    }
-
-    .soul .lines {
-      font: 300 italic clamp(19px, 1.8vw, 22px)/1.5 var(--vs-font);
-      color: var(--vs-fg);
-      max-width: 36ch;
-      margin: 0;
-      text-align: center;
-    }
-
-    /* ── WHY ─────────────────────────────────────────────────── */
-    .why {
-      min-height: 80vh;
-      padding-top: 80px;
-      padding-bottom: 80px;
-    }
-
-    .why p {
-      font: 300 clamp(15px, 1.4vw, 17px)/1.65 var(--vs-font);
-      color: var(--vs-fg);
-      max-width: 60ch;
-      margin: 0 0 18px 0;
-      text-align: left;
-    }
-
-    .why p:last-child {
-      margin-bottom: 0;
-    }
-
-    .why .accent {
-      color: var(--vs-orange);
-    }
-
-    .why .closer {
-      font-weight: 400;
-      color: var(--vs-fg);
-      font-size: clamp(17px, 1.5vw, 19px);
-    }
-
-    /* ── CAPTURE ─────────────────────────────────────────────── */
-    .capture {
-      min-height: 60vh;
-      padding-top: 60px;
-      padding-bottom: 60px;
-      gap: 28px;
-    }
-
-    .capture .label {
-      font: 400 clamp(16px, 1.4vw, 17px)/1.6 var(--vs-font);
-      color: var(--vs-fg);
-      margin: 0;
-    }
-
-    form.capture-form {
-      display: flex;
-      align-items: stretch;
-      width: 100%;
-      max-width: 460px;
-      gap: 8px;
-    }
-
-    input[type="email"] {
-      flex: 1;
-      background: var(--vs-surface2);
-      border: 1px solid var(--vs-border);
-      color: var(--vs-fg);
-      font: 400 15px/1 var(--vs-font);
-      padding: 14px 16px;
-      border-radius: var(--vs-radius-sm);
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    input[type="email"]::placeholder {
-      color: var(--vs-fg-dim);
-    }
-
-    input[type="email"]:focus {
-      border-color: var(--vs-purple-electric);
-    }
-
-    button.submit {
-      background: var(--vs-grad-purple);
-      border: none;
-      color: #fff;
-      font: 600 15px/1 var(--vs-font);
-      padding: 14px 22px;
-      border-radius: var(--vs-radius-sm);
-      cursor: pointer;
-      min-width: 60px;
-      transition: transform 0.1s ease, opacity 0.15s ease;
-    }
-
-    button.submit:hover {
-      opacity: 0.92;
-    }
-
-    button.submit:active {
-      transform: scale(0.97);
-    }
-
-    button.submit:disabled {
-      opacity: 0.35;
-    }
-
-    .capture-status {
-      min-height: 22px;
-      font: 400 13px/1.4 var(--vs-font);
-      color: var(--vs-fg-muted);
-    }
-
-    .capture-status.success {
-      color: var(--vs-purple-electric);
-    }
-
-    .capture-status.error {
-      color: var(--vs-danger);
-    }
-
-    /* ── FOOTER ──────────────────────────────────────────────── */
-    footer {
-      width: 100%;
-      padding: 100px 24px 100px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .footer-mark {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 480px;
-    }
-
-    .footer-wave {
-      position: absolute;
-      width: clamp(280px, 42vw, 420px);
-      height: auto;
-      opacity: 0.55;
-      z-index: 0;
-      animation: wave-undulate 6s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    .footer-logo {
-      position: relative;
-      z-index: 1;
-      width: clamp(120px, 18vw, 180px);
-      opacity: 0.95;
-    }
-
-    footer small {
-      font: var(--vs-meta);
-      color: var(--vs-fg-dim);
-      margin-top: 8px;
-    }
-
-    footer .home-link {
-      font: 300 11px/1 var(--vs-font);
-      color: var(--vs-fg-muted);
-      text-decoration: none;
-      margin-top: 4px;
-      letter-spacing: 0.1em;
-    }
-
-    footer .home-link:hover {
-      color: var(--vs-purple-electric);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-      .wave,
-      .logo-img,
-      .tagline,
-      .eyebrow-bath,
-      .buildathon-title,
-      .cta-row,
-      .footer-wave {
-        opacity: 1 !important;
-        transform: none !important;
-        animation: none !important;
-      }
-    }
-
-    @media (max-width: 540px) {
-      form.capture-form {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .cta-row {
-        flex-direction: column;
-        width: 100%;
-        max-width: 320px;
-      }
-
-      .cta-primary,
-      .cta-secondary {
-        justify-content: center;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vybesync — In sync. In control.</title>
+<meta name="description" content="vybesync. In sync. In control. In pilot.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="colors_and_type.css">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    background: var(--vs-bg);
+    color: var(--vs-fg);
+    font: var(--vs-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  section {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* ── 1 · LOCKUP ───────────────────────────────────────────── */
+  .lockup { min-height: 100vh; gap: 28px; }
+
+  /* wave-wrap centers the wave on its own axis */
+  .wave-wrap {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wave {
+    width: clamp(220px, 30vw, 320px);
+    height: auto;
+    display: block;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: filter 0.3s ease;
+  }
+  /* Once the page enters: do the entry animation, then keep gently breathing forever */
+  .wave.in {
+    animation:
+      wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+      wave-breathe 5.5s ease-in-out 1.6s infinite;
+  }
+  .wave-wrap:hover .wave {
+    filter: drop-shadow(0 0 22px rgba(184, 77, 255, 0.36))
+            drop-shadow(0 0 14px rgba(255, 106, 0, 0.32));
+  }
+
+  @keyframes wave-in {
+    0%   { opacity: 0; transform: translateY(8px) scaleY(0.06); }
+    35%  { opacity: 0.6; transform: translateY(4px) scaleY(0.32); }
+    65%  { opacity: 1; transform: translateY(0) scaleY(0.7); }
+    100% { opacity: 1; transform: translateY(0) scaleY(1); }
+  }
+  @keyframes wave-breathe {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-2px) scale(1.025); }
+  }
+
+  /* easter-egg whisper — appears above the wave */
+  .whisper {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 14px);
+    transform: translateX(-50%) translateY(4px);
+    font: 300 13px/1.4 var(--vs-font);
+    letter-spacing: 0.04em;
+    color: var(--vs-orange-burnt);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .whisper.show {
+    opacity: 0.85;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* eyebrow — the small uppercase label above the vybesync logo */
+  .eyebrow-top {
+    font: var(--vs-label);
+    font-style: italic;
+    text-transform: lowercase;
+    letter-spacing: 0.18em;
+    color: var(--vs-fg-muted);
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .eyebrow-top.in { animation: fade-up 0.6s ease 0.9s forwards; }
+
+  /* the vybesync logo image */
+  .logo-img {
+    width: clamp(180px, 26vw, 280px);
+    height: auto;
+    display: block;
+    opacity: 0;
+    transform: translateY(8px);
+    margin: 0;
+  }
+  .logo-img.in {
+    animation: fade-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.2s forwards;
+  }
+
+  .tagline {
+    font: 400 18px/1.4 var(--vs-font);
+    letter-spacing: 0.01em;
+    color: var(--vs-fg);
+    opacity: 0;
+    transform: translateY(6px);
+    margin: 0;
+  }
+  .tagline.in { animation: fade-up 0.6s ease 1.7s forwards; }
+
+  @keyframes fade-up {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── 2 · SOUL paragraph ───────────────────────────────────── */
+  .soul {
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+  .soul p {
+    /* Quicksand 300 — narrower and lighter than 400 */
+    font: 300 clamp(17px, 1.6vw, 20px)/1.65 var(--vs-font);
+    letter-spacing: -0.005em;
+    color: var(--vs-fg);
+    max-width: 60ch;
+    margin: 0;
+    text-align: left;
+  }
+  .soul .accent { color: var(--vs-orange); }
+  .soul em {
+    font-style: italic;
+    /* Quicksand has a true italic — keep weight matched */
+    font-weight: 300;
+  }
+
+  /* ── 3 · SYNC line — two lines, centered ──────────────────── */
+  .sync-line {
+    min-height: 60vh;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+  .sync-line p {
+    font: 300 italic clamp(19px, 1.8vw, 22px)/1.5 var(--vs-font);
+    color: var(--vs-fg);
+    max-width: 36ch;
+    margin: 0;
+  }
+
+  /* ── 4 · CAPTURE — three lines, centered, then input ──────── */
+  .capture {
+    min-height: 80vh;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    gap: 28px;
+  }
+  .capture .label {
+    font: 400 clamp(16px, 1.4vw, 17px)/1.6 var(--vs-font);
+    color: var(--vs-fg);
+    margin: 0;
+  }
+  form.capture-form {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 460px;
+    gap: 8px;
+  }
+  input[type="email"] {
+    flex: 1;
+    background: var(--vs-surface2);
+    border: 1px solid var(--vs-border);
+    color: var(--vs-fg);
+    font: 400 15px/1 var(--vs-font);
+    padding: 14px 16px;
+    border-radius: var(--vs-radius-sm);
+    outline: none;
+    transition: border-color 0.15s ease;
+    -webkit-appearance: none;
+  }
+  input[type="email"]::placeholder { color: var(--vs-fg-dim); }
+  input[type="email"]:focus { border-color: var(--vs-purple-electric); }
+
+  button.submit {
+    background: var(--vs-grad-purple);
+    border: none;
+    color: #fff;
+    font: 600 15px/1 var(--vs-font);
+    letter-spacing: 0.01em;
+    padding: 14px 22px;
+    border-radius: var(--vs-radius-sm);
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+    min-width: 60px;
+  }
+  button.submit:hover { opacity: 0.92; }
+  button.submit:active { transform: scale(0.97); }
+  button.submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .capture-status {
+    min-height: 22px;
+    font: 400 13px/1.4 var(--vs-font);
+    color: var(--vs-fg-muted);
+  }
+  .capture-status.success { color: var(--vs-purple-electric); }
+  .capture-status.error   { color: var(--vs-danger); }
+
+  /* ── 5 · MANIFESTO ────────────────────────────────────────── */
+  .manifesto {
+    min-height: 100vh;
+    padding-top: 120px;
+    padding-bottom: 120px;
+    gap: 56px;
+  }
+  .manifesto p {
+    font: 300 clamp(14px, 1.3vw, 16px)/1.7 var(--vs-font);
+    color: var(--vs-fg-muted);
+    margin: 0;
+  }
+  .manifesto .accent { color: var(--vs-orange); }
+
+  /* ── FOOTER ────────────────────────────────────────────────
+     The footer mark: small wave logo glyph (purple+orange) above the
+     vybesync logo. Glyph chosen as a quiet rhyme with the page hero —
+     same wave the visitor saw at the top, miniature, closing the loop. */
+  footer {
+    width: 100%;
+    padding: 60px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-glyph {
+    width: 28px;
+    height: auto;
+    opacity: 0.6;
+    animation: wave-breathe 5.5s ease-in-out infinite;
+  }
+  .footer-logo {
+    width: 92px;
+    height: auto;
+    opacity: 0.85;
+  }
+  footer small {
+    font: var(--vs-meta);
+    color: var(--vs-fg-dim);
+    margin-top: 4px;
+  }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .wave, .logo-img, .tagline, .eyebrow-top, .footer-glyph {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .whisper { transition: none; }
+  }
+
+  /* Mobile */
+  @media (max-width: 540px) {
+    form.capture-form { flex-direction: column; gap: 10px; }
+    button.submit { padding: 14px 18px; }
+  }
+</style>
 </head>
 
 <body>
-  <main>
+<main>
 
-    <!-- ── HERO ────────────────────────────────────────────────── -->
-    <section class="hero">
-      <h1 class="buildathon-title" id="bath-title">
-        <span class="accent">Replit 10</span> Buildathon
-      </h1>
-      <p class="eyebrow-bath" id="bath-eyebrow">
-        Using Free Agent · <span class="em">Democratizing creation</span>
-      </p>
-      <div class="wave-wrap" id="wave-wrap" role="button" tabindex="0" aria-label="vybesync wave">
-        <img src="wave-purple-orange.png" alt="" class="wave" id="wave">
-      </div>
-      <img src="vybesync-logo.png" alt="vybesync" class="logo-img" id="logo">
-      <p class="tagline" id="tagline">In sync. Present.</p>
-      <div class="cta-row" id="cta-row">
-        <a class="cta-primary" href="https://www.tiktok.com/@andheresmysecret" target="_blank" rel="noopener">
-          Watch the 24 →
-        </a>
-        <a class="cta-secondary" href="#score">
-          Score on Replit
-        </a>
-      </div>
-      <a href="#frame" class="scroll-indicator" id="scroll-indicator" aria-label="Scroll to read more">
-        <span class="scroll-label">keep going</span>
-        <span class="scroll-arrow">↓</span>
-      </a>
-    </section>
-
-    <!-- ── FRAME ───────────────────────────────────────────────── -->
-    <section class="frame" id="frame">
-      <p>Replit just democratized who gets to build software.</p>
-      <p><span class="accent">vybesync</span> is what democratized creation looks like when it lands inside a venue.</p>
-      <p>Live music and performing arts run on the labor of people whose job is to be invisible. Security. Door staff.
-        Production crews. Ushers. The GM running on three hours of sleep. They are the lifeblood of every room
-        you&rsquo;ve ever loved, and they have been quietly paying the cost of bad operations software for forty years.
-      </p>
-      <p><span class="em">vybesync is the first ops platform built for them, by one of them.</span></p>
-      <p>The 24 hours is when it goes public.</p>
-    </section>
-
-    <!-- ── DELTA ───────────────────────────────────────────────── -->
-    <section class="delta">
-      <div class="delta-block">
-        <p class="delta-label now">Hour 0 · what&rsquo;s already real</p>
-        <ul>
-          <li>A multi-screen staff app on Cloudflare, backed by Supabase with full Row-Level Security</li>
-          <li>Pre-shift flow with brief notes, radio assignment, checklist signoffs, readiness gating</li>
-          <li>Live Mode for in-shift action handling</li>
-          <li>Lead/Manager Dashboard for real-time transparency</li>
-          <li>Artist dossiers tied to Spotify catalog data</li>
-          <li>vybecount as a real-time multi-area capacity counter, on Supabase</li>
-          <li>A management web app for shift setup, brief editing, venue maps, and staff roles</li>
-          <li>A locked design system, brand voice, and structural commitments</li>
-        </ul>
-      </div>
-
-      <div class="delta-block">
-        <p class="delta-label target">Hour 24 · what we&rsquo;re making real</p>
-        <ul>
-          <li>vybecount + vybesync wired into one connected backend</li>
-          <li>Shift management and incident logs shipped as MVP v1</li>
-          <li>This page, this commitment, and the soul of vybesync going public</li>
-        </ul>
-      </div>
-
-      <p class="delta-final">Ya boy is ambitious. Just wait to see what else happens in 24 ;)</p>
-    </section>
-
-    <!-- ── COMMITMENTS ─────────────────────────────────────────── -->
-    <section class="commitments">
-      <div class="commit-block">
-        <h3>5:1 compensation ratio</h3>
-        <p>No one on a vybesync team earns more than five times the lowest-paid full-time member. Not a founder cap. A
-          team cap.</p>
-        <p>As we grow, we don&rsquo;t grow one team larger. We seed more 5:1 teams. Every team is its own small
-          ecosystem of dignity, with its own abundance floor and its own abundance ceiling.</p>
-        <p><em>The goal is to make the person at the bottom of every team live in abundance, because the people at the
-            top already understand they&rsquo;re so beyond abundance that all they want to do is give back.</em></p>
-      </div>
-
-      <div class="commit-block">
-        <h3>4% of gross revenue, reinvested permanently</h3>
-        <p>Goes back to the communities the platform serves, regardless of margin. Anyone using vybesync gets to weigh
-          in on how that money is spent.</p>
-      </div>
-
-      <div class="commit-block">
-        <h3>Profit beyond a sustainability threshold goes back to culture</h3>
-        <p>Pop-up shows. Production classes. Showcases for the talent inside every venue we serve.</p>
-      </div>
-
-      <div class="imagine">
-        <p>What that looks like in practice: imagine vybesync gets big enough that we randomly select a venue using the
-          platform and host a free show for their staff. Other vybesync venues&rsquo; staff volunteer to work the night
-          so the home venue&rsquo;s people get to enjoy what they spend their lives making possible.</p>
-        <p><strong>Now imagine Audra McDonald shows up unannounced to perform that show for the staff of Bass Concert
-            Hall in Austin, and ushers from theatres in Houston and Dallas drove in to work the doors so the Bass team
-            gets to sit in the audience.</strong></p>
-        <p><strong>Or Fred again teaches a production class to every working tech at a venue that&rsquo;s been using
-            vybesync for a year. The class is free. The staff who took it now know things they could never have afforded
-            to learn.</strong></p>
-        <p>That&rsquo;s not a stretch goal. That&rsquo;s the company. That&rsquo;s why we&rsquo;re capping pay.
-          That&rsquo;s what the 4% is for.</p>
-      </div>
-    </section>
-
-    <!-- ── SOUL ────────────────────────────────────────────────── -->
-    <section class="soul">
-      <p class="blockquote">
-        The goal of <span class="accent">vybesync</span> is to make venues run so smoothly that operations are invisible
-        and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start
-        crying when Collins sings the <em>I&rsquo;ll Cover You (Reprise)</em>. Those moments can only happen because of
-        the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic
-        reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
-      </p>
-      <p class="lines">
-        You cannot fake a synced room.<br>
-        Guests feel it without knowing why.
-      </p>
-    </section>
-
-    <!-- ── WHY ─────────────────────────────────────────────────── -->
-    <section class="why">
-      <p>vybesync exists because I, Sean Josephs, know what it's like to get home at 5am after working 12 hours
-        protecting a community I love and
-        know that bad operations software costs the body and the brain. Before working in the EDM community, I spent
-        fifteen years in big tech in roles focused on learning and
-        development, and before that I was a theatre major. The product reflects that. The design and ecosystem come
-        from inhabiting and loving both spaces.</p>
-      <p>The Replit 10 Buildathon is the right stage because vybesync is what <span class="accent">democratization of
-          creation</span> looks like once the tools democratize. Replit lowered the floor for who gets to build.
-        vybesync is what one of those builders does when they pick a problem the venture economy was never going to fund
-        &mdash; because the problem belongs to people the venture economy doesn&rsquo;t see.</p>
-      <p class="closer">24 hours. One person. One platform. Going public.</p>
-      <p>If that earns your Replicash, throw it. If it earns your attention, give it. If it earns your name on the
-        founding member list, leave your email below.</p>
-    </section>
-
-    <!-- ── CAPTURE ─────────────────────────────────────────────── -->
-    <section class="capture" id="score">
-      <p class="label">
-        Drop your email.<br>
-        We&rsquo;ll let you know when it&rsquo;s time<br>
-        to be in the room where it happens.
-      </p>
-
-      <form class="capture-form" id="capture-form" novalidate>
-        <input type="email" id="email" name="email" placeholder="you@yourroom.com" autocomplete="email" required
-          aria-label="Email address">
-        <button type="submit" class="submit" id="submit">→</button>
-      </form>
-
-      <div class="capture-status" id="capture-status" role="status" aria-live="polite"></div>
-    </section>
-
-  </main>
-
-  <footer>
-    <div class="footer-mark">
-      <img src="wave-purple-orange.png" alt="" class="footer-wave">
-      <img src="vybesync-logo.png" alt="vybesync" class="footer-logo">
+  <!-- ── 1 · LOCKUP ──────────────────────────────────────────── -->
+  <section class="lockup" aria-label="vybesync">
+    <div class="wave-wrap" id="wave-wrap" role="button" tabindex="0" aria-label="vybesync wave logo">
+      <img src="wave-purple-orange.png" alt="" class="wave" id="wave">
+      <span class="whisper" id="whisper" aria-live="polite"></span>
     </div>
-    <small>© 2026 · Replit 10 Buildathon</small>
-    <a class="home-link" href="/">vybesync.io</a>
-  </footer>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    const SUPABASE_URL = 'https://wipkvwvilaczrorltjun.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_lQbsVCAPpqfdegLITPfptg_TiYujv40';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    <span class="eyebrow-top" id="eyebrow">in pilot · five rooms</span>
 
-    // Entry animation
-    window.addEventListener('DOMContentLoaded', () => {
-      requestAnimationFrame(() => {
-        ['bath-title', 'bath-eyebrow', 'wave', 'logo', 'tagline', 'cta-row', 'scroll-indicator'].forEach(id => {
-          document.getElementById(id).classList.add('in');
-        });
-      });
+    <img src="wordmark.png" alt="vybesync" class="logo-img" id="logo">
+
+    <p class="tagline" id="tagline">In sync. In control.</p>
+  </section>
+
+  <!-- ── 2 · SOUL ────────────────────────────────────────────── -->
+  <section class="soul" aria-label="The mission">
+    <p>
+      The goal of <span class="accent">vybesync</span> is to make venues run so smoothly that operations are invisible and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start crying when Collins sings the <em>I&rsquo;ll Cover You (Reprise)</em>. Those moments can only happen because of the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
+    </p>
+  </section>
+
+  <!-- ── 3 · SYNC LINE ──────────────────────────────────────── -->
+  <section class="sync-line" aria-label="The philosophy">
+    <p>
+      You cannot fake a synced room.<br>
+      Guests feel it without knowing why.
+    </p>
+  </section>
+
+  <!-- ── 4 · CAPTURE ────────────────────────────────────────── -->
+  <section class="capture" aria-label="Join the waitlist">
+    <p class="label">
+      Drop your email.<br>
+      We&rsquo;ll let you know when it&rsquo;s time<br>
+      to be in the room where it happens.
+    </p>
+
+    <form class="capture-form" id="capture-form" novalidate>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@yourroom.com"
+        autocomplete="email"
+        required
+        aria-label="Email address"
+      >
+      <button type="submit" class="submit" id="submit">→</button>
+    </form>
+
+    <div class="capture-status" id="capture-status" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- ── 5 · MANIFESTO ──────────────────────────────────────── -->
+  <section class="manifesto" aria-label="Why we built this">
+    <p>Not built by a software company that has never worked a door.</p>
+
+    <p>
+      <span class="accent">vybesync</span> doesn&rsquo;t extract value from<br>
+      live music, performance,<br>
+      or theatre ecosystems.<br>
+      It circulates it.
+    </p>
+
+    <p>
+      Your guests, artists, and community<br>
+      deserve all of your attention.<br>
+      Give it to them.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <img src="wave-purple-orange.png" alt="" class="footer-glyph">
+  <img src="wordmark.png" alt="vybesync" class="footer-logo">
+  <small>© 2026</small>
+</footer>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://wipkvwvilaczrorltjun.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_lQbsVCAPpqfdegLITPfptg_TiYujv40';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  // Entry animation
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.getElementById('wave').classList.add('in');
+      document.getElementById('eyebrow').classList.add('in');
+      document.getElementById('logo').classList.add('in');
+      document.getElementById('tagline').classList.add('in');
     });
+  });
 
-    // Form submit → Supabase
-    const form = document.getElementById('capture-form');
-    const emailInput = document.getElementById('email');
-    const submitBtn = document.getElementById('submit');
-    const status = document.getElementById('capture-status');
-    function setStatus(t, k) {
-      status.textContent = t;
-      status.classList.remove('success', 'error');
-      if (k) status.classList.add(k);
+  // Easter egg: 3 clicks on the wave
+  const waveWrap = document.getElementById('wave-wrap');
+  const whisper = document.getElementById('whisper');
+  const WHISPERS = ['5:46.', 'the room where it happens.', 'i\u2019ll cover you.'];
+  let clickCount = 0, clickTimer = null, whisperTimer = null;
+
+  function trigger() {
+    whisper.textContent = WHISPERS[Math.floor(Math.random() * WHISPERS.length)];
+    whisper.classList.add('show');
+    clearTimeout(whisperTimer);
+    whisperTimer = setTimeout(() => whisper.classList.remove('show'), 2800);
+  }
+  function bump() {
+    clickCount += 1;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clickCount = 0; }, 900);
+    if (clickCount >= 3) { clickCount = 0; trigger(); }
+  }
+  waveWrap.addEventListener('click', bump);
+  waveWrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
+  });
+
+  // Form submit → Supabase
+  const form = document.getElementById('capture-form');
+  const emailInput = document.getElementById('email');
+  const submitBtn = document.getElementById('submit');
+  const status = document.getElementById('capture-status');
+
+  function setStatus(text, kind) {
+    status.textContent = text;
+    status.classList.remove('success', 'error');
+    if (kind) status.classList.add(kind);
+  }
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!isValidEmail(email)) {
+      setStatus('That email looks off. Try again.', 'error');
+      return;
     }
-    function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (!isValidEmail(email)) { setStatus('That email looks off. Try again.', 'error'); return; }
-      submitBtn.disabled = true;
-      setStatus('Sending\u2026');
-      try {
-        const { error } = await supabase.from('waitlist').insert({ email });
-        if (error) {
-          if (error.code === '23505') {
-            setStatus('You\u2019re already on the list. We\u2019ll be in touch.', 'success');
-            emailInput.value = '';
-          } else {
-            console.error(error);
-            setStatus('Something went sideways. Try again in a minute.', 'error');
-            submitBtn.disabled = false;
-            return;
-          }
-        } else {
-          setStatus('Got it. We\u2019ll let you know.', 'success');
+    submitBtn.disabled = true;
+    setStatus('Sending\u2026');
+    try {
+      const { error } = await supabase.from('waitlist').insert({ email });
+      if (error) {
+        if (error.code === '23505') {
+          setStatus('You\u2019re already on the list. We\u2019ll be in touch.', 'success');
           emailInput.value = '';
+        } else {
+          console.error(error);
+          setStatus('Something went sideways. Try again in a minute.', 'error');
+          submitBtn.disabled = false;
+          return;
         }
-      } catch (err) {
-        console.error(err);
-        setStatus('Network hiccup. Try again.', 'error');
-        submitBtn.disabled = false;
-        return;
+      } else {
+        setStatus('Got it. We\u2019ll let you know.', 'success');
+        emailInput.value = '';
       }
-      setTimeout(() => { submitBtn.disabled = false; }, 2000);
-    });
-  </script>
+    } catch (err) {
+      console.error(err);
+      setStatus('Network hiccup. Try again.', 'error');
+      submitBtn.disabled = false;
+      return;
+    }
+    setTimeout(() => { submitBtn.disabled = false; }, 2000);
+  });
+</script>
 </body>
-
 </html>
