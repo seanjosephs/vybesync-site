@@ -143,21 +143,35 @@
     min-height: 100vh;
     padding-top: 80px;
     padding-bottom: 80px;
+    gap: 18px;
   }
   .soul p {
-    /* Quicksand 300 — narrower and lighter than 400 */
-    font: 300 clamp(17px, 1.6vw, 20px)/1.65 var(--vs-font);
-    letter-spacing: -0.005em;
-    color: var(--vs-fg);
-    max-width: 60ch;
+    font: 300 clamp(17px, 1.55vw, 20px)/1.72 var(--vs-font);
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 58ch;
     margin: 0;
     text-align: left;
   }
-  .soul .accent { color: var(--vs-orange); }
+  .soul .brand-name,
+  .manifesto .brand-name {
+    font-style: italic;
+    font-weight: 400;
+    display: inline-flex;
+    gap: 0;
+  }
+  .soul .brand-name .brand-name-white,
+  .manifesto .brand-name .brand-name-white {
+    color: var(--vs-white);
+  }
+  .soul .brand-name .brand-name-orange,
+  .manifesto .brand-name .brand-name-orange {
+    color: var(--vs-orange);
+  }
   .soul em {
     font-style: italic;
-    /* Quicksand has a true italic — keep weight matched */
-    font-weight: 300;
+    font-weight: 400;
+    color: var(--vs-white);
   }
 
   /* ── 3 · SYNC line — two lines, centered ──────────────────── */
@@ -241,15 +255,14 @@
   }
   .manifesto p {
     font: 300 clamp(14px, 1.3vw, 16px)/1.7 var(--vs-font);
-    color: var(--vs-fg-muted);
+    color: rgba(255, 255, 255, 0.88);
     margin: 0;
   }
   .manifesto .accent { color: var(--vs-orange); }
 
   /* ── FOOTER ────────────────────────────────────────────────
-     The footer mark: small wave logo glyph (purple+orange) above the
-     vybesync logo. Glyph chosen as a quiet rhyme with the page hero —
-     same wave the visitor saw at the top, miniature, closing the loop. */
+     The footer lockup layers the wave behind the vybesync word logo as
+     a quiet rhyme with the page hero. */
   footer {
     width: 100%;
     padding: 60px 24px 60px;
@@ -258,16 +271,28 @@
     align-items: center;
     gap: 12px;
   }
+  .footer-lockup {
+    position: relative;
+    width: 136px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .footer-glyph {
-    width: 28px;
+    position: absolute;
+    width: 84px;
     height: auto;
-    opacity: 0.6;
+    opacity: 0.42;
     animation: wave-breathe 5.5s ease-in-out infinite;
+    z-index: 0;
   }
   .footer-logo {
     width: 92px;
     height: auto;
     opacity: 0.85;
+    position: relative;
+    z-index: 1;
   }
   footer small {
     font: var(--vs-meta);
@@ -287,6 +312,33 @@
 
   /* Mobile */
   @media (max-width: 540px) {
+    section { padding-left: 32px; padding-right: 32px; }
+    .lockup { gap: 24px; }
+    .soul {
+      min-height: auto;
+      padding-top: 92px;
+      padding-bottom: 92px;
+      gap: 20px;
+    }
+    .soul p {
+      font-size: clamp(16px, 4.6vw, 18px);
+      line-height: 1.78;
+      max-width: 100%;
+    }
+    .sync-line p {
+      font-size: clamp(18px, 5vw, 20px);
+      line-height: 1.55;
+    }
+    .manifesto {
+      min-height: auto;
+      padding-top: 100px;
+      padding-bottom: 100px;
+      gap: 44px;
+    }
+    .manifesto p {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.86);
+    }
     form.capture-form { flex-direction: column; gap: 10px; }
     button.submit { padding: 14px 18px; }
   }
@@ -313,7 +365,10 @@
   <!-- ── 2 · SOUL ────────────────────────────────────────────── -->
   <section class="soul" aria-label="The mission">
     <p>
-      The goal of <span class="accent">vybesync</span> is to make venues run so smoothly that operations are invisible and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start crying when Collins sings the <em>I&rsquo;ll Cover You (Reprise)</em>. Those moments can only happen because of the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
+      The goal of <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> is to make venues run so smoothly that operations are invisible and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start crying when <em>Collins sings the I&rsquo;ll Cover You (Reprise)</em>.
+    </p>
+    <p>
+      Those moments can only happen because of the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
     </p>
   </section>
 
@@ -354,7 +409,7 @@
     <p>Not built by a software company that has never worked a door.</p>
 
     <p>
-      <span class="accent">vybesync</span> doesn&rsquo;t extract value from<br>
+      <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> doesn&rsquo;t extract value from<br>
       live music, performance,<br>
       or theatre ecosystems.<br>
       It circulates it.
@@ -370,8 +425,10 @@
 </main>
 
 <footer>
-  <img src="wave-purple-orange.png" alt="" class="footer-glyph">
-  <img src="vybesync-logo.png" alt="vybesync" class="footer-logo">
+  <div class="footer-lockup" aria-label="vybesync">
+    <img src="wave-purple-orange.png" alt="" class="footer-glyph">
+    <img src="vybesync-logo.png" alt="vybesync" class="footer-logo">
+  </div>
   <small>© 2026</small>
 </footer>
 
