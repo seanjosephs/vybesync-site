@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vybesync — in sync. present.</title>
+<meta name="description" content="vybesync. in sync. present. in pilot.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="colors_and_type.css">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    background: var(--vs-bg);
+    color: var(--vs-fg);
+    font: var(--vs-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  section {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* ── 1 · LOCKUP ───────────────────────────────────────────── */
+  .lockup { min-height: 100vh; gap: 28px; }
+
+  /* wave-wrap centers the wave on its own axis */
+  .wave-wrap {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wave {
+    width: clamp(220px, 30vw, 320px);
+    height: auto;
+    display: block;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: filter 0.3s ease;
+  }
+  /* Once the page enters: do the entry animation, then keep gently breathing forever */
+  .wave.in {
+    animation:
+      wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+      wave-breathe 5.5s ease-in-out 1.6s infinite;
+  }
+  .wave-wrap:hover .wave {
+    filter: drop-shadow(0 0 22px rgba(184, 77, 255, 0.36))
+            drop-shadow(0 0 14px rgba(255, 106, 0, 0.32));
+  }
+
+  @keyframes wave-in {
+    0%   { opacity: 0; transform: translateY(8px) scaleY(0.06); }
+    35%  { opacity: 0.6; transform: translateY(4px) scaleY(0.32); }
+    65%  { opacity: 1; transform: translateY(0) scaleY(0.7); }
+    100% { opacity: 1; transform: translateY(0) scaleY(1); }
+  }
+  @keyframes wave-breathe {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-2px) scale(1.025); }
+  }
+
+  /* easter-egg whisper — appears above the wave */
+  .whisper {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 14px);
+    transform: translateX(-50%) translateY(4px);
+    font: 300 13px/1.4 var(--vs-font);
+    letter-spacing: 0.04em;
+    color: var(--vs-orange-burnt);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .whisper.show {
+    opacity: 0.85;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* eyebrow — the small uppercase label above the vybesync logo */
+  .eyebrow-top {
+    font: var(--vs-label);
+    font-style: italic;
+    text-transform: lowercase;
+    letter-spacing: 0.18em;
+    color: var(--vs-fg-muted);
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .eyebrow-top.in { animation: fade-up 0.6s ease 0.9s forwards; }
+
+  /* the vybesync logo image */
+  .logo-img {
+    width: clamp(180px, 26vw, 280px);
+    height: auto;
+    display: block;
+    opacity: 0;
+    transform: translateY(8px);
+    margin: 0;
+  }
+  .logo-img.in {
+    animation: fade-up 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.2s forwards;
+  }
+
+  .tagline {
+    font: 400 18px/1.4 var(--vs-font);
+    letter-spacing: 0.01em;
+    color: var(--vs-fg);
+    opacity: 0;
+    transform: translateY(6px);
+    margin: 0;
+  }
+  .tagline.in { animation: fade-up 0.6s ease 1.7s forwards; }
+
+  @keyframes fade-up {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── 2 · SOUL paragraph ───────────────────────────────────── */
+  .soul {
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    gap: 18px;
+  }
+  .soul p {
+    font: 300 clamp(17px, 1.55vw, 20px)/1.72 var(--vs-font);
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 58ch;
+    margin: 0;
+    text-align: left;
+  }
+  .soul .brand-name,
+  .manifesto .brand-name {
+    font-style: italic;
+    font-weight: 400;
+    display: inline-flex;
+    gap: 0;
+  }
+  .soul .brand-name .brand-name-white,
+  .manifesto .brand-name .brand-name-white {
+    color: var(--vs-white);
+  }
+  .soul .brand-name .brand-name-orange,
+  .manifesto .brand-name .brand-name-orange {
+    color: var(--vs-orange);
+  }
+  .soul em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--vs-white);
+  }
+
+  /* ── 3 · SYNC line — two lines, centered ──────────────────── */
+  .sync-line {
+    min-height: 60vh;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+  .sync-line p {
+    font: 300 italic clamp(19px, 1.8vw, 22px)/1.5 var(--vs-font);
+    color: var(--vs-fg);
+    max-width: 36ch;
+    margin: 0;
+  }
+
+  /* ── 4 · CAPTURE — three lines, centered, then input ──────── */
+  .capture {
+    min-height: 80vh;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    gap: 28px;
+  }
+  .capture .label {
+    font: 400 clamp(16px, 1.4vw, 17px)/1.6 var(--vs-font);
+    color: var(--vs-fg);
+    margin: 0;
+  }
+  form.capture-form {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 460px;
+    gap: 8px;
+  }
+  input[type="email"] {
+    flex: 1;
+    background: var(--vs-surface2);
+    border: 1px solid var(--vs-border);
+    color: var(--vs-fg);
+    font: 400 15px/1 var(--vs-font);
+    padding: 14px 16px;
+    border-radius: var(--vs-radius-sm);
+    outline: none;
+    transition: border-color 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="email"]::placeholder { color: var(--vs-fg-dim); }
+  input[type="email"]:focus { border-color: var(--vs-purple-electric); }
+
+  button.submit {
+    background: var(--vs-grad-purple);
+    border: none;
+    color: #fff;
+    font: 600 15px/1 var(--vs-font);
+    letter-spacing: 0.01em;
+    padding: 14px 22px;
+    border-radius: var(--vs-radius-sm);
+    cursor: pointer;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+    min-width: 60px;
+  }
+  button.submit:hover { opacity: 0.92; }
+  button.submit:active { transform: scale(0.97); }
+  button.submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .capture-status {
+    min-height: 22px;
+    font: 400 13px/1.4 var(--vs-font);
+    color: var(--vs-fg-muted);
+  }
+  .capture-status.success { color: var(--vs-purple-electric); }
+  .capture-status.error   { color: var(--vs-danger); }
+
+  /* ── 5 · MANIFESTO ────────────────────────────────────────── */
+  .manifesto {
+    min-height: 100vh;
+    padding-top: 120px;
+    padding-bottom: 120px;
+    gap: 56px;
+  }
+  .manifesto p {
+    font: 300 clamp(14px, 1.3vw, 16px)/1.7 var(--vs-font);
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0;
+  }
+  .manifesto .accent { color: var(--vs-orange); }
+
+  /* ── FOOTER ────────────────────────────────────────────────
+     The footer lockup layers the wave behind the vybesync word logo as
+     a quiet rhyme with the page hero. */
+  footer {
+    width: 100%;
+    padding: 60px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-lockup {
+    position: relative;
+    width: 136px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .footer-glyph {
+    position: absolute;
+    width: 84px;
+    height: auto;
+    opacity: 0.42;
+    animation: wave-breathe 5.5s ease-in-out infinite;
+    z-index: 0;
+  }
+  .footer-logo {
+    width: 92px;
+    height: auto;
+    opacity: 0.85;
+    position: relative;
+    z-index: 1;
+  }
+  footer small {
+    font: var(--vs-meta);
+    color: var(--vs-fg-dim);
+    margin-top: 4px;
+  }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .wave, .logo-img, .tagline, .eyebrow-top, .footer-glyph {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .whisper { transition: none; }
+  }
+
+  /* Mobile */
+  @media (max-width: 540px) {
+    section { padding-left: 32px; padding-right: 32px; }
+    .lockup { gap: 24px; }
+    .soul {
+      min-height: auto;
+      padding-top: 92px;
+      padding-bottom: 92px;
+      gap: 20px;
+    }
+    .soul p {
+      font-size: clamp(16px, 4.6vw, 18px);
+      line-height: 1.78;
+      max-width: 100%;
+    }
+    .sync-line p {
+      font-size: clamp(18px, 5vw, 20px);
+      line-height: 1.55;
+    }
+    .manifesto {
+      min-height: auto;
+      padding-top: 100px;
+      padding-bottom: 100px;
+      gap: 44px;
+    }
+    .manifesto p {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.86);
+    }
+    form.capture-form { flex-direction: column; gap: 10px; }
+    button.submit { padding: 14px 18px; }
+  }
+</style>
+</head>
+
+<body>
+<main>
+
+  <!-- ── 1 · LOCKUP ──────────────────────────────────────────── -->
+  <section class="lockup" aria-label="vybesync">
+    <div class="wave-wrap" id="wave-wrap" role="button" tabindex="0" aria-label="vybesync wave logo">
+      <img src="wave-purple-orange.png" alt="" class="wave" id="wave">
+      <span class="whisper" id="whisper" aria-live="polite"></span>
+    </div>
+
+    <span class="eyebrow-top" id="eyebrow">in pilot · five rooms</span>
+
+    <img src="vybesync-logo.png" alt="vybesync" class="logo-img" id="logo">
+
+    <p class="tagline" id="tagline">in sync. present.</p>
+  </section>
+
+  <!-- ── 2 · SOUL ────────────────────────────────────────────── -->
+  <section class="soul" aria-label="The mission">
+    <p>
+      The goal of <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> is to make venues run so smoothly that operations are invisible and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start crying when <em>Collins sings the I&rsquo;ll Cover You (Reprise)</em>.
+    </p>
+    <p>
+      Those moments can only happen because of the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
+    </p>
+  </section>
+
+  <!-- ── 3 · SYNC LINE ──────────────────────────────────────── -->
+  <section class="sync-line" aria-label="The philosophy">
+    <p>
+      You cannot fake a synced room.<br>
+      Guests feel it without knowing why.
+    </p>
+  </section>
+
+  <!-- ── 4 · CAPTURE ────────────────────────────────────────── -->
+  <section class="capture" aria-label="Join the waitlist">
+    <p class="label">
+      Drop your email.<br>
+      We&rsquo;ll let you know when it&rsquo;s time<br>
+      to be in the room where it happens.
+    </p>
+
+    <form class="capture-form" id="capture-form" novalidate>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@yourroom.com"
+        autocomplete="email"
+        required
+        aria-label="Email address"
+      >
+      <button type="submit" class="submit" id="submit">→</button>
+    </form>
+
+    <div class="capture-status" id="capture-status" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- ── 5 · MANIFESTO ──────────────────────────────────────── -->
+  <section class="manifesto" aria-label="Why we built this">
+    <p>Not built by a software company that has never worked a door.</p>
+
+    <p>
+      <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> doesn&rsquo;t extract value from<br>
+      live music, performance,<br>
+      or theatre ecosystems.<br>
+      It circulates it.
+    </p>
+
+    <p>
+      Your guests, artists, and community<br>
+      deserve all of your attention.<br>
+      Give it to them.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-lockup" aria-label="vybesync">
+    <img src="wave-purple-orange.png" alt="" class="footer-glyph">
+    <img src="vybesync-logo.png" alt="vybesync" class="footer-logo">
+  </div>
+  <small>© 2026</small>
+</footer>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://wipkvwvilaczrorltjun.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_lQbsVCAPpqfdegLITPfptg_TiYujv40';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  // Entry animation
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.getElementById('wave').classList.add('in');
+      document.getElementById('eyebrow').classList.add('in');
+      document.getElementById('logo').classList.add('in');
+      document.getElementById('tagline').classList.add('in');
+    });
+  });
+
+  // Easter egg: 3 clicks on the wave
+  const waveWrap = document.getElementById('wave-wrap');
+  const whisper = document.getElementById('whisper');
+  const WHISPERS = ['5:46.', 'the room where it happens.', 'i\u2019ll cover you.'];
+  let clickCount = 0, clickTimer = null, whisperTimer = null;
+
+  function trigger() {
+    whisper.textContent = WHISPERS[Math.floor(Math.random() * WHISPERS.length)];
+    whisper.classList.add('show');
+    clearTimeout(whisperTimer);
+    whisperTimer = setTimeout(() => whisper.classList.remove('show'), 2800);
+  }
+  function bump() {
+    clickCount += 1;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clickCount = 0; }, 900);
+    if (clickCount >= 3) { clickCount = 0; trigger(); }
+  }
+  waveWrap.addEventListener('click', bump);
+  waveWrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bump(); }
+  });
+
+  // Form submit → Supabase
+  const form = document.getElementById('capture-form');
+  const emailInput = document.getElementById('email');
+  const submitBtn = document.getElementById('submit');
+  const status = document.getElementById('capture-status');
+
+  function setStatus(text, kind) {
+    status.textContent = text;
+    status.classList.remove('success', 'error');
+    if (kind) status.classList.add(kind);
+  }
+  function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!isValidEmail(email)) {
+      setStatus('That email looks off. Try again.', 'error');
+      return;
+    }
+    submitBtn.disabled = true;
+    setStatus('Sending\u2026');
+    try {
+      const { error } = await supabase.from('waitlist').insert({ email });
+      if (error) {
+        if (error.code === '23505') {
+          setStatus('You\u2019re already on the list. We\u2019ll be in touch.', 'success');
+          emailInput.value = '';
+        } else {
+          console.error(error);
+          setStatus('Something went sideways. Try again in a minute.', 'error');
+          submitBtn.disabled = false;
+          return;
+        }
+      } else {
+        setStatus('Got it. We\u2019ll let you know.', 'success');
+        emailInput.value = '';
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus('Network hiccup. Try again.', 'error');
+      submitBtn.disabled = false;
+      return;
+    }
+    setTimeout(() => { submitBtn.disabled = false; }, 2000);
+  });
+</script>
+</body>
+</html>

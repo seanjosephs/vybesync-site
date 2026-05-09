@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
 <title>vybesync — in sync. present.</title>
 <meta name="description" content="vybesync. in sync. present. in pilot.">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -10,14 +11,48 @@
 
 <style>
   *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    /* viewport unit fallbacks for mobile (svh dodges the URL bar dance) */
+    --vh: 100vh;
+  }
+  @supports (height: 100svh) {
+    :root { --vh: 100svh; }
+  }
+
   html, body {
     margin: 0; padding: 0;
-    min-height: 100vh;
+    min-height: 100%;
+    width: 100%;
+    max-width: 100vw;
     background: var(--vs-bg);
     color: var(--vs-fg);
     font: var(--vs-body);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+  }
+
+  /* ── Scroll progress line — top of viewport ─────────────────── */
+  .scroll-rail {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .scroll-rail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+  }
+  .scroll-rail__fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    background: var(--vs-grad-orange-h);
+    box-shadow: 0 0 12px rgba(255, 106, 0, 0.45);
+    transform-origin: left center;
+    transition: width 0.05s linear;
   }
 
   main {
@@ -34,12 +69,33 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    position: relative;
   }
 
-  /* ── 1 · LOCKUP ───────────────────────────────────────────── */
-  .lockup { min-height: 100vh; gap: 28px; }
+  /* Subtle wave-train divider between sections — quiet rhyme with the mark */
+  .divider {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .divider.in { opacity: 0.55; transform: translateY(0); }
+  .divider svg { width: clamp(120px, 26vw, 200px); height: auto; display: block; }
 
-  /* wave-wrap centers the wave on its own axis */
+  /* ── 1 · LOCKUP ───────────────────────────────────────────── */
+  .lockup {
+    min-height: var(--vh);
+    gap: 28px;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: 60px;
+    justify-content: center;
+  }
+
   .wave-wrap {
     position: relative;
     cursor: pointer;
@@ -48,6 +104,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 12px;  /* expand tap target without visual change */
+    margin: -12px;
   }
 
   .wave {
@@ -58,13 +116,13 @@
     transform: translateY(8px);
     transition: filter 0.3s ease;
   }
-  /* Once the page enters: do the entry animation, then keep gently breathing forever */
   .wave.in {
     animation:
       wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
       wave-breathe 5.5s ease-in-out 1.6s infinite;
   }
-  .wave-wrap:hover .wave {
+  .wave-wrap:hover .wave,
+  .wave-wrap:active .wave {
     filter: drop-shadow(0 0 22px rgba(184, 77, 255, 0.36))
             drop-shadow(0 0 14px rgba(255, 106, 0, 0.32));
   }
@@ -80,11 +138,11 @@
     50%      { transform: translateY(-2px) scale(1.025); }
   }
 
-  /* easter-egg whisper — appears above the wave */
+  /* easter-egg whisper */
   .whisper {
     position: absolute;
     left: 50%;
-    bottom: calc(100% + 14px);
+    bottom: calc(100% + 4px);
     transform: translateX(-50%) translateY(4px);
     font: 300 13px/1.4 var(--vs-font);
     letter-spacing: 0.04em;
@@ -99,7 +157,6 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* eyebrow — the small uppercase label above the vybesync logo */
   .eyebrow-top {
     font: var(--vs-label);
     font-style: italic;
@@ -108,10 +165,25 @@
     color: var(--vs-fg-muted);
     opacity: 0;
     transform: translateY(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow-top::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--vs-orange);
+    box-shadow: 0 0 8px rgba(255, 106, 0, 0.6);
+    animation: dot-pulse 2.4s ease-in-out infinite;
   }
   .eyebrow-top.in { animation: fade-up 0.6s ease 0.9s forwards; }
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
 
-  /* the vybesync logo image */
   .logo-img {
     width: clamp(180px, 26vw, 280px);
     height: auto;
@@ -134,16 +206,52 @@
   }
   .tagline.in { animation: fade-up 0.6s ease 1.7s forwards; }
 
+  /* Tiny scroll cue at the bottom of the hero */
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    font: 400 10px/1 var(--vs-font);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--vs-fg-dim);
+    opacity: 0;
+    animation: cue-in 0.6s ease 2.4s forwards, cue-bob 2.4s ease-in-out 3s infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .scroll-cue::after {
+    content: "";
+    width: 1px;
+    height: 18px;
+    background: linear-gradient(180deg, var(--vs-fg-dim), transparent);
+  }
+  @keyframes cue-in { to { opacity: 0.7; } }
+  @keyframes cue-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(4px); }
+  }
+
   @keyframes fade-up {
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Section reveals via IO */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal[data-delay="1"].in { transition-delay: 0.12s; }
+  .reveal[data-delay="2"].in { transition-delay: 0.24s; }
+  .reveal[data-delay="3"].in { transition-delay: 0.36s; }
+
   /* ── 2 · SOUL paragraph ───────────────────────────────────── */
   .soul {
-    min-height: 100vh;
+    min-height: var(--vh);
     padding-top: 80px;
     padding-bottom: 80px;
-    gap: 18px;
+    gap: 24px;
   }
   .soul p {
     font: 300 clamp(17px, 1.55vw, 20px)/1.72 var(--vs-font);
@@ -152,42 +260,63 @@
     max-width: 58ch;
     margin: 0;
     text-align: left;
+    text-wrap: pretty;
   }
-  .soul .brand-name,
-  .manifesto .brand-name {
+  .brand-name {
     font-style: italic;
     font-weight: 400;
     display: inline-flex;
     gap: 0;
   }
-  .soul .brand-name .brand-name-white,
-  .manifesto .brand-name .brand-name-white {
-    color: var(--vs-white);
-  }
-  .soul .brand-name .brand-name-orange,
-  .manifesto .brand-name .brand-name-orange {
-    color: var(--vs-orange);
-  }
-  .soul em {
+  .brand-name .brand-name-white { color: var(--vs-white); }
+  .brand-name .brand-name-orange { color: var(--vs-orange); }
+  .soul em, .manifesto em {
     font-style: italic;
     font-weight: 400;
     color: var(--vs-white);
   }
 
-  /* ── 3 · SYNC line — two lines, centered ──────────────────── */
+  /* ── 3 · SYNC LINE ──────────────────────────────────────────
+     The reference line. Small "now playing" treatment with a hairline
+     equalizer on the left echoes the wave behavior strip. */
   .sync-line {
     min-height: 60vh;
     padding-top: 60px;
     padding-bottom: 60px;
+    gap: 28px;
+  }
+  .eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 18px;
+  }
+  .eq span {
+    width: 2px;
+    background: var(--vs-orange);
+    border-radius: 2px;
+    transform-origin: bottom;
+    animation: eq 1.2s ease-in-out infinite;
+  }
+  .eq span:nth-child(1) { height: 60%; animation-delay: 0s; }
+  .eq span:nth-child(2) { height: 100%; animation-delay: 0.18s; }
+  .eq span:nth-child(3) { height: 75%; animation-delay: 0.34s; }
+  .eq span:nth-child(4) { height: 100%; animation-delay: 0.5s; }
+  .eq span:nth-child(5) { height: 50%; animation-delay: 0.66s; }
+  @keyframes eq {
+    0%, 100% { transform: scaleY(0.35); }
+    50%      { transform: scaleY(1); }
   }
   .sync-line p {
     font: 300 italic clamp(19px, 1.8vw, 22px)/1.5 var(--vs-font);
     color: var(--vs-fg);
     max-width: 36ch;
     margin: 0;
+    text-wrap: balance;
+    overflow-wrap: break-word;
   }
 
-  /* ── 4 · CAPTURE — three lines, centered, then input ──────── */
+  /* ── 4 · CAPTURE ────────────────────────────────────────── */
   .capture {
     min-height: 80vh;
     padding-top: 60px;
@@ -198,6 +327,8 @@
     font: 400 clamp(16px, 1.4vw, 17px)/1.6 var(--vs-font);
     color: var(--vs-fg);
     margin: 0;
+    text-wrap: balance;
+    overflow-wrap: break-word;
   }
   form.capture-form {
     display: flex;
@@ -211,32 +342,48 @@
     background: var(--vs-surface2);
     border: 1px solid var(--vs-border);
     color: var(--vs-fg);
-    font: 400 15px/1 var(--vs-font);
-    padding: 14px 16px;
+    font: 400 16px/1 var(--vs-font);
+    padding: 16px 18px;
     border-radius: var(--vs-radius-sm);
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease;
     -webkit-appearance: none;
     appearance: none;
+    min-height: 52px;
   }
   input[type="email"]::placeholder { color: var(--vs-fg-dim); }
-  input[type="email"]:focus { border-color: var(--vs-purple-electric); }
+  input[type="email"]:focus {
+    border-color: var(--vs-purple-electric);
+    background: var(--vs-surface3);
+  }
 
   button.submit {
     background: var(--vs-grad-purple);
     border: none;
     color: #fff;
-    font: 600 15px/1 var(--vs-font);
+    font: 600 18px/1 var(--vs-font);
     letter-spacing: 0.01em;
     padding: 14px 22px;
     border-radius: var(--vs-radius-sm);
     cursor: pointer;
-    transition: transform 0.1s ease, opacity 0.15s ease;
-    min-width: 60px;
+    transition: transform 0.1s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+    min-width: 64px;
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  button.submit:hover { opacity: 0.92; }
+  button.submit:hover { opacity: 0.92; box-shadow: 0 6px 20px rgba(123, 61, 255, 0.4); }
   button.submit:active { transform: scale(0.97); }
-  button.submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  button.submit:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+  button.submit .arrow { transition: transform 0.2s ease; display: inline-block; }
+  button.submit:hover .arrow { transform: translateX(3px); }
+  button.submit.is-sending .arrow { animation: arrow-pulse 1s ease-in-out infinite; }
+  @keyframes arrow-pulse {
+    0%, 100% { transform: translateX(0); opacity: 1; }
+    50%      { transform: translateX(3px); opacity: 0.6; }
+  }
 
   .capture-status {
     min-height: 22px;
@@ -248,7 +395,7 @@
 
   /* ── 5 · MANIFESTO ────────────────────────────────────────── */
   .manifesto {
-    min-height: 100vh;
+    min-height: var(--vh);
     padding-top: 120px;
     padding-bottom: 120px;
     gap: 56px;
@@ -257,15 +404,60 @@
     font: 300 clamp(14px, 1.3vw, 16px)/1.7 var(--vs-font);
     color: rgba(255, 255, 255, 0.88);
     margin: 0;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
   }
   .manifesto .accent { color: var(--vs-orange); }
 
-  /* ── FOOTER ────────────────────────────────────────────────
-     The footer lockup layers the wave behind the vybesync word logo as
-     a quiet rhyme with the page hero. */
+  /* ── Sticky mobile CTA — appears after the hero ──────────── */
+  .sticky-cta {
+    position: fixed;
+    left: 50%;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    transform: translateX(-50%) translateY(80px);
+    z-index: 40;
+    background: var(--vs-surface);
+    border: 1px solid var(--vs-border-bright);
+    border-radius: 99px;
+    padding: 10px 12px 10px 18px;
+    color: var(--vs-fg);
+    font: 500 14px/1 var(--vs-font);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: none;  /* hidden on desktop */
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 106, 0, 0.0);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sticky-cta.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .sticky-cta.hide-on-form { opacity: 0; transform: translateX(-50%) translateY(20px); pointer-events: none; }
+  .sticky-cta:active { transform: translateX(-50%) scale(0.97); }
+  .sticky-cta__arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 99px;
+    background: var(--vs-grad-orange);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(255, 106, 0, 0.45);
+  }
+
+  /* ── FOOTER ───────────────────────────────────────────────── */
   footer {
     width: 100%;
-    padding: 60px 24px 60px;
+    padding: 60px 24px max(60px, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -300,52 +492,111 @@
     margin-top: 4px;
   }
 
-  /* Respect reduced-motion preference */
+  /* ── Reduced motion ───────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
-    .wave, .logo-img, .tagline, .eyebrow-top, .footer-glyph {
+    .wave, .logo-img, .tagline, .eyebrow-top, .footer-glyph, .scroll-cue, .reveal, .divider {
       opacity: 1 !important;
       transform: none !important;
       animation: none !important;
+      transition: none !important;
     }
+    .eyebrow-top::before, .eq span { animation: none !important; }
     .whisper { transition: none; }
   }
 
-  /* Mobile */
-  @media (max-width: 540px) {
-    section { padding-left: 32px; padding-right: 32px; }
-    .lockup { gap: 24px; }
+  /* ── Mobile ───────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    section { padding-left: 20px; padding-right: 20px; max-width: 100vw; }
+    .lockup {
+      gap: 22px;
+      padding-bottom: 80px;
+    }
+    .wave { width: clamp(180px, 48vw, 240px); }
+    .logo-img { width: clamp(160px, 44vw, 220px); }
+    .tagline { font-size: 16px; }
+    .eyebrow-top { font-size: 10px; letter-spacing: 0.16em; }
+
     .soul {
       min-height: auto;
-      padding-top: 92px;
-      padding-bottom: 92px;
-      gap: 20px;
+      padding-top: 88px;
+      padding-bottom: 88px;
+      gap: 22px;
     }
     .soul p {
-      font-size: clamp(16px, 4.6vw, 18px);
-      line-height: 1.78;
+      font-size: clamp(15px, 4.1vw, 17px);
+      line-height: 1.72;
       max-width: 100%;
     }
+    .sync-line {
+      min-height: auto;
+      padding-top: 64px;
+      padding-bottom: 64px;
+      gap: 22px;
+    }
     .sync-line p {
-      font-size: clamp(18px, 5vw, 20px);
-      line-height: 1.55;
+      font-size: clamp(17px, 4.6vw, 19px);
+      line-height: 1.5;
+      max-width: 20ch;
+    }
+    /* Drop forced <br>s on mobile — let copy reflow */
+    .sync-line p br,
+    .capture .label br,
+    .manifesto p br { display: none; }
+    .capture {
+      min-height: auto;
+      padding-top: 64px;
+      padding-bottom: 130px; /* room for sticky CTA when visible */
+      gap: 22px;
+    }
+    .capture .label {
+      font-size: 15px;
+      max-width: 28ch;
+      text-wrap: balance;
     }
     .manifesto {
       min-height: auto;
-      padding-top: 100px;
-      padding-bottom: 100px;
-      gap: 44px;
+      padding-top: 96px;
+      padding-bottom: 120px;
+      gap: 40px;
     }
     .manifesto p {
-      font-size: 15px;
+      font-size: 14.5px;
+      line-height: 1.7;
       color: rgba(255, 255, 255, 0.86);
+      max-width: 30ch;
+      text-wrap: balance;
     }
-    form.capture-form { flex-direction: column; gap: 10px; }
-    button.submit { padding: 14px 18px; }
+    form.capture-form {
+      flex-direction: column;
+      gap: 10px;
+      max-width: 100%;
+    }
+    button.submit { padding: 16px 18px; min-height: 54px; font-size: 16px; }
+    input[type="email"] { min-height: 54px; padding: 14px 16px; }
+
+    .sticky-cta { display: inline-flex; }
+
+    .scroll-cue { font-size: 9px; }
+  }
+
+  /* Smaller phones (iPhone SE, Mini) */
+  @media (max-width: 400px) {
+    section { padding-left: 16px; padding-right: 16px; }
+    .lockup { gap: 18px; }
+    .wave { width: 46vw; }
+    .logo-img { width: 44vw; }
+    .soul p { font-size: 14.5px; line-height: 1.7; }
+    .sync-line p { font-size: 16px; }
+    .manifesto p { font-size: 14px; }
+    .capture .label { font-size: 14.5px; }
   }
 </style>
 </head>
 
 <body>
+
+<div class="scroll-rail" aria-hidden="true"><div class="scroll-rail__fill" id="scroll-fill"></div></div>
+
 <main>
 
   <!-- ── 1 · LOCKUP ──────────────────────────────────────────── -->
@@ -360,62 +611,101 @@
     <img src="vybesync-logo.png" alt="vybesync" class="logo-img" id="logo">
 
     <p class="tagline" id="tagline">in sync. present.</p>
+
+    <div class="scroll-cue" aria-hidden="true">scroll</div>
   </section>
+
+  <!-- divider -->
+  <div class="divider reveal" aria-hidden="true">
+    <svg viewBox="0 0 200 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12 Q 12 12 18 4 T 34 12 T 50 12 T 66 12 Q 76 12 82 4 T 98 12 T 114 12 T 130 12 Q 140 12 146 4 T 162 12 T 178 12 T 198 12"
+            stroke="url(#div-grad)" stroke-width="1.5" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="div-grad" x1="0" x2="200" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#FF6A00" stop-opacity="0"/>
+          <stop offset="0.5" stop-color="#FF6A00"/>
+          <stop offset="1" stop-color="#7B3DFF" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
 
   <!-- ── 2 · SOUL ────────────────────────────────────────────── -->
   <section class="soul" aria-label="The mission">
-    <p>
+    <p class="reveal">
       The goal of <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> is to make venues run so smoothly that operations are invisible and guests are present for every drop, every moment, every time <em>Innerbloom hits 5:46</em> or you start crying when <em>Collins sings the I&rsquo;ll Cover You (Reprise)</em>.
     </p>
-    <p>
+    <p class="reveal" data-delay="1">
       Those moments can only happen because of the people who are the lifeblood of those venues, and they deserve to be honored with the same energetic reciprocity that they give every person who sets foot on a dance floor or buys a ticket to a matinee.
     </p>
   </section>
 
+  <!-- divider -->
+  <div class="divider reveal" aria-hidden="true">
+    <svg viewBox="0 0 200 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12 Q 12 12 18 4 T 34 12 T 50 12 T 66 12 Q 76 12 82 4 T 98 12 T 114 12 T 130 12 Q 140 12 146 4 T 162 12 T 178 12 T 198 12"
+            stroke="url(#div-grad-2)" stroke-width="1.5" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="div-grad-2" x1="0" x2="200" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#7B3DFF" stop-opacity="0"/>
+          <stop offset="0.5" stop-color="#FFA400"/>
+          <stop offset="1" stop-color="#FF6A00" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
   <!-- ── 3 · SYNC LINE ──────────────────────────────────────── -->
   <section class="sync-line" aria-label="The philosophy">
-    <p>
+    <div class="eq reveal" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p class="reveal" data-delay="1">
       You cannot fake a synced room.<br>
       Guests feel it without knowing why.
     </p>
   </section>
 
   <!-- ── 4 · CAPTURE ────────────────────────────────────────── -->
-  <section class="capture" aria-label="Join the waitlist">
-    <p class="label">
+  <section class="capture" aria-label="Join the waitlist" id="capture">
+    <p class="label reveal">
       Drop your email.<br>
       We&rsquo;ll let you know when it&rsquo;s time<br>
       to be in the room where it happens.
     </p>
 
-    <form class="capture-form" id="capture-form" novalidate>
+    <form class="capture-form reveal" data-delay="1" id="capture-form" novalidate>
       <input
         type="email"
         id="email"
         name="email"
         placeholder="you@yourroom.com"
         autocomplete="email"
+        inputmode="email"
         required
         aria-label="Email address"
       >
-      <button type="submit" class="submit" id="submit">→</button>
+      <button type="submit" class="submit" id="submit" aria-label="Submit email">
+        <span class="label-text">Send</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
     </form>
 
-    <div class="capture-status" id="capture-status" role="status" aria-live="polite"></div>
+    <div class="capture-status reveal" data-delay="2" id="capture-status" role="status" aria-live="polite"></div>
   </section>
 
   <!-- ── 5 · MANIFESTO ──────────────────────────────────────── -->
   <section class="manifesto" aria-label="Why we built this">
-    <p>Not built by a software company that has never worked a door.</p>
+    <p class="reveal">Not built by a software company that has never worked a door.</p>
 
-    <p>
+    <p class="reveal" data-delay="1">
       <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> doesn&rsquo;t extract value from<br>
       live music, performance,<br>
       or theatre ecosystems.<br>
       It circulates it.
     </p>
 
-    <p>
+    <p class="reveal" data-delay="2">
       Your guests, artists, and community<br>
       deserve all of your attention.<br>
       Give it to them.
@@ -431,6 +721,12 @@
   </div>
   <small>© 2026</small>
 </footer>
+
+<!-- Sticky mobile CTA -->
+<button class="sticky-cta" id="sticky-cta" type="button" aria-label="Jump to email form">
+  <span>drop your email</span>
+  <span class="sticky-cta__arrow" aria-hidden="true">↓</span>
+</button>
 
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -449,7 +745,56 @@
     });
   });
 
-  // Easter egg: 3 clicks on the wave
+  // Scroll progress + sticky CTA visibility
+  const scrollFill = document.getElementById('scroll-fill');
+  const stickyCta = document.getElementById('sticky-cta');
+  const captureSection = document.getElementById('capture');
+
+  function onScroll() {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    scrollFill.style.width = (pct * 100).toFixed(2) + '%';
+
+    // Show sticky CTA after first viewport, hide once near/past the form
+    const past1vh = window.scrollY > window.innerHeight * 0.7;
+    const captureRect = captureSection.getBoundingClientRect();
+    const captureNear = captureRect.top < window.innerHeight * 0.7;
+    if (past1vh && !captureNear) {
+      stickyCta.classList.add('visible');
+      stickyCta.classList.remove('hide-on-form');
+    } else if (captureNear) {
+      stickyCta.classList.add('hide-on-form');
+    } else {
+      stickyCta.classList.remove('visible');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  stickyCta.addEventListener('click', () => {
+    captureSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => document.getElementById('email').focus({ preventScroll: true }), 600);
+  });
+
+  // Reveal-on-scroll
+  const reveals = document.querySelectorAll('.reveal, .divider');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach((el) => io.observe(el));
+  } else {
+    reveals.forEach((el) => el.classList.add('in'));
+  }
+
+  // Easter egg: 3 taps on the wave
   const waveWrap = document.getElementById('wave-wrap');
   const whisper = document.getElementById('whisper');
   const WHISPERS = ['5:46.', 'the room where it happens.', 'i\u2019ll cover you.'];
@@ -477,6 +822,7 @@
   const emailInput = document.getElementById('email');
   const submitBtn = document.getElementById('submit');
   const status = document.getElementById('capture-status');
+  const submitLabel = submitBtn.querySelector('.label-text');
 
   function setStatus(text, kind) {
     status.textContent = text;
@@ -490,9 +836,12 @@
     const email = emailInput.value.trim();
     if (!isValidEmail(email)) {
       setStatus('That email looks off. Try again.', 'error');
+      emailInput.focus();
       return;
     }
     submitBtn.disabled = true;
+    submitBtn.classList.add('is-sending');
+    submitLabel.textContent = 'Sending';
     setStatus('Sending\u2026');
     try {
       const { error } = await supabase.from('waitlist').insert({ email });
@@ -500,23 +849,33 @@
         if (error.code === '23505') {
           setStatus('You\u2019re already on the list. We\u2019ll be in touch.', 'success');
           emailInput.value = '';
+          submitLabel.textContent = 'Sent';
         } else {
           console.error(error);
           setStatus('Something went sideways. Try again in a minute.', 'error');
           submitBtn.disabled = false;
+          submitBtn.classList.remove('is-sending');
+          submitLabel.textContent = 'Send';
           return;
         }
       } else {
         setStatus('Got it. We\u2019ll let you know.', 'success');
         emailInput.value = '';
+        submitLabel.textContent = 'Sent';
       }
     } catch (err) {
       console.error(err);
       setStatus('Network hiccup. Try again.', 'error');
       submitBtn.disabled = false;
+      submitBtn.classList.remove('is-sending');
+      submitLabel.textContent = 'Send';
       return;
     }
-    setTimeout(() => { submitBtn.disabled = false; }, 2000);
+    submitBtn.classList.remove('is-sending');
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitLabel.textContent = 'Send';
+    }, 2400);
   });
 </script>
 </body>
