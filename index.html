@@ -14,9 +14,72 @@
   :root {
     /* viewport unit fallbacks for mobile (svh dodges the URL bar dance) */
     --vh: 100vh;
+
+    /* ── Tweak layer ─────────────────────────────────────── */
+    /* Defaults match the "Live" vybe — the page as designed. */
+    --tw-bg: var(--vs-bg);
+    --tw-accent:      #FF6A00;
+    --tw-accent-soft: #FFA400;
+    --tw-counter:     #B84DFF;
+    --tw-glow-1: rgba(184, 77, 255, 0.36);
+    --tw-glow-2: rgba(255, 106, 0, 0.32);
+    --tw-dot-shadow: rgba(255, 106, 0, 0.6);
+    --tw-grad-rail: linear-gradient(90deg, #FF6A00, #FFA400);
+    --tw-grad-cta:  linear-gradient(135deg, #7B3DFF, #B84DFF);
+
+    --tw-pulse: 1;
+    --tw-pulse-amp: 1;
+
+    --tw-type-scale: 1;
+    --tw-type-weight: 300;
+    --tw-italic-weight: 400;
+    --tw-line-height: 1.72;
+    --tw-letter: 0;
   }
   @supports (height: 100svh) {
     :root { --vh: 100svh; }
+  }
+
+  /* Vybe: Pre-show — cool, expectant, purple-forward */
+  html[data-vybe="preshow"] {
+    --tw-bg: #0A0913;
+    --tw-accent:      #B84DFF;
+    --tw-accent-soft: #7B3DFF;
+    --tw-counter:     #FFA400;
+    --tw-glow-1: rgba(123, 61, 255, 0.55);
+    --tw-glow-2: rgba(184, 77, 255, 0.30);
+    --tw-dot-shadow: rgba(184, 77, 255, 0.6);
+    --tw-grad-rail: linear-gradient(90deg, #7B3DFF, #B84DFF);
+    --tw-grad-cta:  linear-gradient(135deg, #FF6A00, #FFA400);
+  }
+  /* Vybe: After-hours — warm, deep, amber-forward */
+  html[data-vybe="afterhours"] {
+    --tw-bg: #060403;
+    --tw-accent:      #FFA400;
+    --tw-accent-soft: #FFB24D;
+    --tw-counter:     #FF6A00;
+    --tw-glow-1: rgba(255, 164, 0, 0.50);
+    --tw-glow-2: rgba(255, 106, 0, 0.40);
+    --tw-dot-shadow: rgba(255, 164, 0, 0.7);
+    --tw-grad-rail: linear-gradient(90deg, #FFA400, #FFB24D);
+    --tw-grad-cta:  linear-gradient(135deg, #FF6A00, #FFA400);
+  }
+
+  /* Voice: Whisper — lighter, looser, slightly smaller */
+  html[data-voice="whisper"] {
+    --tw-type-scale: 0.92;
+    --tw-type-weight: 300;
+    --tw-italic-weight: 300;
+    --tw-line-height: 1.85;
+    --tw-letter: 0.012em;
+  }
+  /* Voice: Declare — heavier, tighter, taller */
+  html[data-voice="declare"] {
+    --tw-type-scale: 1.14;
+    --tw-type-weight: 400;
+    --tw-italic-weight: 500;
+    --tw-line-height: 1.55;
+    --tw-letter: -0.006em;
   }
 
   html, body {
@@ -24,7 +87,8 @@
     min-height: 100%;
     width: 100%;
     max-width: 100vw;
-    background: var(--vs-bg);
+    background: var(--tw-bg);
+    transition: background-color 0.5s ease;
     color: var(--vs-fg);
     font: var(--vs-body);
     -webkit-font-smoothing: antialiased;
@@ -49,8 +113,8 @@
     position: absolute;
     inset: 0;
     width: 0%;
-    background: var(--vs-grad-orange-h);
-    box-shadow: 0 0 12px rgba(255, 106, 0, 0.45);
+    background: var(--tw-grad-rail);
+    box-shadow: 0 0 12px var(--tw-glow-2);
     transform-origin: left center;
     transition: width 0.05s linear;
   }
@@ -119,12 +183,15 @@
   .wave.in {
     animation:
       wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
-      wave-breathe 5.5s ease-in-out 1.6s infinite;
+      wave-breathe calc(5.5s / max(var(--tw-pulse), 0.001)) ease-in-out 1.6s infinite;
+  }
+  html[data-pulse="still"] .wave.in {
+    animation: wave-in 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   .wave-wrap:hover .wave,
   .wave-wrap:active .wave {
-    filter: drop-shadow(0 0 22px rgba(184, 77, 255, 0.36))
-            drop-shadow(0 0 14px rgba(255, 106, 0, 0.32));
+    filter: drop-shadow(0 0 22px var(--tw-glow-1))
+            drop-shadow(0 0 14px var(--tw-glow-2));
   }
 
   @keyframes wave-in {
@@ -135,7 +202,7 @@
   }
   @keyframes wave-breathe {
     0%, 100% { transform: translateY(0) scale(1); }
-    50%      { transform: translateY(-2px) scale(1.025); }
+    50%      { transform: translateY(calc(-2px * var(--tw-pulse-amp))) scale(calc(1 + 0.025 * var(--tw-pulse-amp))); }
   }
 
   /* easter-egg whisper */
@@ -174,10 +241,11 @@
     width: 6px;
     height: 6px;
     border-radius: 99px;
-    background: var(--vs-orange);
-    box-shadow: 0 0 8px rgba(255, 106, 0, 0.6);
-    animation: dot-pulse 2.4s ease-in-out infinite;
+    background: var(--tw-accent);
+    box-shadow: 0 0 8px var(--tw-dot-shadow);
+    animation: dot-pulse calc(2.4s / max(var(--tw-pulse), 0.001)) ease-in-out infinite;
   }
+  html[data-pulse="still"] .eyebrow-top::before { animation: none; opacity: 0.7; }
   .eyebrow-top.in { animation: fade-up 0.6s ease 0.9s forwards; }
   @keyframes dot-pulse {
     0%, 100% { opacity: 0.55; transform: scale(1); }
@@ -254,25 +322,30 @@
     gap: 24px;
   }
   .soul p {
-    font: 300 clamp(17px, 1.55vw, 20px)/1.72 var(--vs-font);
-    letter-spacing: 0;
-    color: rgba(255, 255, 255, 0.9);
-    max-width: 58ch;
+    font-family: var(--vs-font);
+    font-weight: 300;
+    font-size: calc(clamp(17px, 1.55vw, 20px) * var(--tw-type-scale));
+    line-height: var(--tw-line-height);
+    letter-spacing: calc(var(--tw-letter) + 0.004em);
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 54ch;
     margin: 0;
-    text-align: left;
+    text-align: center;
     text-wrap: pretty;
   }
+  .soul .brand-name { font-weight: 500; }
+  .soul em { font-weight: 500; color: var(--vs-white); }
   .brand-name {
     font-style: italic;
-    font-weight: 400;
+    font-weight: var(--tw-italic-weight);
     display: inline-flex;
     gap: 0;
   }
   .brand-name .brand-name-white { color: var(--vs-white); }
-  .brand-name .brand-name-orange { color: var(--vs-orange); }
+  .brand-name .brand-name-orange { color: var(--tw-accent); }
   .soul em, .manifesto em {
     font-style: italic;
-    font-weight: 400;
+    font-weight: var(--tw-italic-weight);
     color: var(--vs-white);
   }
 
@@ -293,11 +366,12 @@
   }
   .eq span {
     width: 2px;
-    background: var(--vs-orange);
+    background: var(--tw-accent);
     border-radius: 2px;
     transform-origin: bottom;
-    animation: eq 1.2s ease-in-out infinite;
+    animation: eq calc(1.2s / max(var(--tw-pulse), 0.001)) ease-in-out infinite;
   }
+  html[data-pulse="still"] .eq span { animation: none; transform: scaleY(0.55); }
   .eq span:nth-child(1) { height: 60%; animation-delay: 0s; }
   .eq span:nth-child(2) { height: 100%; animation-delay: 0.18s; }
   .eq span:nth-child(3) { height: 75%; animation-delay: 0.34s; }
@@ -308,7 +382,12 @@
     50%      { transform: scaleY(1); }
   }
   .sync-line p {
-    font: 300 italic clamp(19px, 1.8vw, 22px)/1.5 var(--vs-font);
+    font-family: var(--vs-font);
+    font-style: italic;
+    font-weight: var(--tw-italic-weight);
+    font-size: calc(clamp(19px, 1.8vw, 22px) * var(--tw-type-scale));
+    line-height: 1.5;
+    letter-spacing: var(--tw-letter);
     color: var(--vs-fg);
     max-width: 36ch;
     margin: 0;
@@ -358,7 +437,7 @@
   }
 
   button.submit {
-    background: var(--vs-grad-purple);
+    background: var(--tw-grad-cta);
     border: none;
     color: #fff;
     font: 600 18px/1 var(--vs-font);
@@ -401,13 +480,17 @@
     gap: 56px;
   }
   .manifesto p {
-    font: 300 clamp(14px, 1.3vw, 16px)/1.7 var(--vs-font);
+    font-family: var(--vs-font);
+    font-weight: var(--tw-type-weight);
+    font-size: calc(clamp(14px, 1.3vw, 16px) * var(--tw-type-scale));
+    line-height: var(--tw-line-height);
+    letter-spacing: var(--tw-letter);
     color: rgba(255, 255, 255, 0.88);
     margin: 0;
     text-wrap: pretty;
     overflow-wrap: break-word;
   }
-  .manifesto .accent { color: var(--vs-orange); }
+  .manifesto .accent { color: var(--tw-accent); }
 
   /* ── Sticky mobile CTA — appears after the hero ──────────── */
   .sticky-cta {
@@ -476,9 +559,10 @@
     width: 84px;
     height: auto;
     opacity: 0.42;
-    animation: wave-breathe 5.5s ease-in-out infinite;
+    animation: wave-breathe calc(5.5s / max(var(--tw-pulse), 0.001)) ease-in-out infinite;
     z-index: 0;
   }
+  html[data-pulse="still"] .footer-glyph { animation: none; }
   .footer-logo {
     width: 92px;
     height: auto;
@@ -520,11 +604,13 @@
       min-height: auto;
       padding-top: 88px;
       padding-bottom: 88px;
+      padding-left: 36px;
+      padding-right: 36px;
       gap: 22px;
     }
     .soul p {
       font-size: clamp(15px, 4.1vw, 17px);
-      line-height: 1.72;
+      line-height: 1.78;
       max-width: 100%;
     }
     .sync-line {
@@ -557,8 +643,11 @@
       min-height: auto;
       padding-top: 96px;
       padding-bottom: 120px;
+      padding-left: 56px;
+      padding-right: 56px;
       gap: 40px;
     }
+    .manifesto p { max-width: 24ch; }
     .manifesto p {
       font-size: 14.5px;
       line-height: 1.7;
@@ -585,10 +674,180 @@
     .lockup { gap: 18px; }
     .wave { width: 46vw; }
     .logo-img { width: 44vw; }
-    .soul p { font-size: 14.5px; line-height: 1.7; }
+    .soul p { font-size: 14.5px; line-height: 1.78; }
+    .soul { padding-left: 28px; padding-right: 28px; }
     .sync-line p { font-size: 16px; }
     .manifesto p { font-size: 14px; }
+    .manifesto { padding-left: 40px; padding-right: 40px; }
     .capture .label { font-size: 14.5px; }
+  }
+
+  /* ── Tweaks panel ───────────────────────────────────────────── */
+  #tweaks {
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    z-index: 60;
+    width: min(320px, calc(100vw - 32px));
+    background: rgba(19, 19, 19, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--vs-border-bright);
+    border-radius: 16px;
+    color: var(--vs-fg);
+    padding: 18px 18px 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    font: 400 13px/1.4 var(--vs-font);
+    transform: translateY(8px);
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+  }
+  #tweaks.open { display: flex; transform: translateY(0); opacity: 1; }
+  #tweaks header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+  }
+  #tweaks h2 {
+    font: 500 11px/1 var(--vs-font);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--vs-fg-muted);
+    margin: 0;
+  }
+  #tweaks .close-x {
+    background: transparent;
+    border: 0;
+    color: var(--vs-fg-muted);
+    width: 26px; height: 26px;
+    border-radius: 99px;
+    cursor: pointer;
+    font: 400 18px/1 var(--vs-font);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  #tweaks .close-x:hover { background: var(--vs-surface3); color: var(--vs-fg); }
+
+  .tw-row { display: flex; flex-direction: column; gap: 8px; }
+  .tw-label {
+    font: 500 10px/1 var(--vs-font);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--vs-fg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tw-label .tw-value {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0.04em;
+    color: var(--vs-fg);
+    font-style: italic;
+  }
+
+  .tw-seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--vs-surface2);
+    border: 1px solid var(--vs-border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 0;
+    position: relative;
+  }
+  .tw-seg button {
+    background: transparent;
+    border: 0;
+    color: var(--vs-fg-muted);
+    font: 500 12px/1 var(--vs-font);
+    padding: 9px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.18s ease, background 0.22s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tw-seg button:hover { color: var(--vs-fg); }
+  .tw-seg button:active { transform: scale(0.97); }
+  .tw-seg button[aria-pressed="true"] {
+    background: linear-gradient(135deg, var(--tw-accent), var(--tw-accent-soft));
+    color: #fff;
+    box-shadow: 0 4px 14px var(--tw-glow-2);
+  }
+
+  /* Slider — horizontal hairline with thumb dot */
+  .tw-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 26px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .tw-slider::-webkit-slider-runnable-track {
+    height: 2px;
+    background: linear-gradient(90deg,
+      var(--tw-accent) 0%, var(--tw-accent) var(--tw-fill, 50%),
+      var(--vs-border) var(--tw-fill, 50%), var(--vs-border) 100%);
+    border-radius: 2px;
+  }
+  .tw-slider::-moz-range-track {
+    height: 2px;
+    background: var(--vs-border);
+    border-radius: 2px;
+  }
+  .tw-slider::-moz-range-progress {
+    height: 2px;
+    background: var(--tw-accent);
+    border-radius: 2px;
+  }
+  .tw-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 99px;
+    background: var(--tw-accent);
+    border: 2px solid #0A0A0A;
+    box-shadow: 0 0 12px var(--tw-glow-2);
+    margin-top: -7px;
+    cursor: grab;
+    transition: transform 0.15s ease;
+  }
+  .tw-slider::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 99px;
+    background: var(--tw-accent);
+    border: 2px solid #0A0A0A;
+    box-shadow: 0 0 12px var(--tw-glow-2);
+    cursor: grab;
+  }
+  .tw-slider:active::-webkit-slider-thumb { transform: scale(1.15); cursor: grabbing; }
+
+  .tw-scale {
+    display: flex;
+    justify-content: space-between;
+    font: 300 10px/1 var(--vs-font);
+    color: var(--vs-fg-dim);
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+    margin-top: -2px;
+  }
+
+  @media (max-width: 540px) {
+    #tweaks {
+      right: 12px;
+      bottom: 12px;
+      width: calc(100vw - 24px);
+      padding: 16px 16px 14px;
+      gap: 14px;
+    }
+    .tw-seg button { font-size: 11px; padding: 10px 4px; }
   }
 </style>
 </head>
@@ -662,7 +921,7 @@
     </div>
     <p class="reveal" data-delay="1">
       You cannot fake a synced room.<br>
-      Guests feel it without knowing why.
+      Guests and staff know when it&rsquo;s authentic.
     </p>
   </section>
 
@@ -696,18 +955,15 @@
 
   <!-- ── 5 · MANIFESTO ──────────────────────────────────────── -->
   <section class="manifesto" aria-label="Why we built this">
-    <p class="reveal">Not built by a software company that has never worked a door.</p>
+    <p class="reveal">Built by people who live and breathe this community.<br>Not by a software company where no one has ever worked a door.</p>
 
     <p class="reveal" data-delay="1">
-      <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> doesn&rsquo;t extract value from<br>
-      live music, performance,<br>
-      or theatre ecosystems.<br>
-      It circulates it.
+      <span class="brand-name"><span class="brand-name-white">vybe</span><span class="brand-name-orange">sync</span></span> makes live music, performance, and theatre ecosystems more effective and efficient.<br>
+      Our profits also circulate back to the people and rooms that facilitate those experiences.
     </p>
 
     <p class="reveal" data-delay="2">
-      Your guests, artists, and community<br>
-      deserve all of your attention.<br>
+      Our guests, artists, and community deserve all of our attention.<br>
       Give it to them.
     </p>
   </section>
@@ -727,6 +983,162 @@
   <span>drop your email</span>
   <span class="sticky-cta__arrow" aria-hidden="true">↓</span>
 </button>
+
+<!-- Tweaks panel — hidden until host activates edit mode -->
+<aside id="tweaks" aria-label="Tweaks" aria-hidden="true">
+  <header>
+    <h2>Tweaks</h2>
+    <button class="close-x" id="tw-close" type="button" aria-label="Close tweaks">×</button>
+  </header>
+
+  <div class="tw-row">
+    <div class="tw-label">
+      <span>Vybe</span>
+      <span class="tw-value" id="tw-vybe-value">live</span>
+    </div>
+    <div class="tw-seg" role="radiogroup" data-tweak="vybe">
+      <button type="button" role="radio" data-value="preshow">Pre-show</button>
+      <button type="button" role="radio" data-value="live">Live</button>
+      <button type="button" role="radio" data-value="afterhours">After-hours</button>
+    </div>
+  </div>
+
+  <div class="tw-row">
+    <div class="tw-label">
+      <span>Pulse</span>
+      <span class="tw-value" id="tw-pulse-value">steady</span>
+    </div>
+    <input class="tw-slider" id="tw-pulse" type="range" min="0" max="150" step="5" value="100" aria-label="Pulse intensity">
+    <div class="tw-scale">
+      <span>still</span>
+      <span>steady</span>
+      <span>lively</span>
+    </div>
+  </div>
+
+  <div class="tw-row">
+    <div class="tw-label">
+      <span>Voice</span>
+      <span class="tw-value" id="tw-voice-value">speak</span>
+    </div>
+    <div class="tw-seg" role="radiogroup" data-tweak="voice">
+      <button type="button" role="radio" data-value="whisper">Whisper</button>
+      <button type="button" role="radio" data-value="speak">Speak</button>
+      <button type="button" role="radio" data-value="declare">Declare</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  // ── Tweaks — vanilla, follows the host edit-mode protocol ───────────
+  (function () {
+    const DEFAULTS = /*EDITMODE-BEGIN*/{
+      "vybe": "live",
+      "pulse": 125,
+      "voice": "speak"
+    }/*EDITMODE-END*/;
+
+    const state = Object.assign({}, DEFAULTS);
+    const root = document.documentElement;
+    const panel = document.getElementById('tweaks');
+    const pulseInput = document.getElementById('tw-pulse');
+    const vybeValueEl = document.getElementById('tw-vybe-value');
+    const pulseValueEl = document.getElementById('tw-pulse-value');
+    const voiceValueEl = document.getElementById('tw-voice-value');
+
+    function pulseLabel(v) {
+      if (v <= 5)   return 'still';
+      if (v < 60)   return 'slow';
+      if (v < 115)  return 'steady';
+      if (v < 140)  return 'lively';
+      return 'racing';
+    }
+
+    function apply() {
+      // Vybe — palette/mood
+      root.dataset.vybe = state.vybe;
+      vybeValueEl.textContent = state.vybe === 'preshow' ? 'pre-show'
+                              : state.vybe === 'afterhours' ? 'after-hours'
+                              : 'live';
+
+      // Pulse — 0–150 → multiplier; <=5 hits "still" branch
+      const p = Number(state.pulse);
+      if (p <= 5) {
+        root.dataset.pulse = 'still';
+        root.style.setProperty('--tw-pulse', '0.0001');
+        root.style.setProperty('--tw-pulse-amp', '0');
+      } else {
+        delete root.dataset.pulse;
+        root.style.setProperty('--tw-pulse', (p / 100).toFixed(3));
+        root.style.setProperty('--tw-pulse-amp', Math.min(p / 100, 1.5).toFixed(3));
+      }
+      const fillPct = Math.max(0, Math.min(100, (p / 150) * 100));
+      pulseInput.style.setProperty('--tw-fill', fillPct.toFixed(1) + '%');
+      pulseInput.value = String(p);
+      pulseValueEl.textContent = pulseLabel(p);
+
+      // Voice — type pressure
+      if (state.voice === 'speak') delete root.dataset.voice;
+      else root.dataset.voice = state.voice;
+      voiceValueEl.textContent = state.voice;
+
+      // Reflect pressed state on segmented controls
+      panel.querySelectorAll('.tw-seg').forEach(seg => {
+        const key = seg.dataset.tweak;
+        seg.querySelectorAll('button').forEach(btn => {
+          btn.setAttribute('aria-pressed', btn.dataset.value === state[key] ? 'true' : 'false');
+        });
+      });
+    }
+
+    function setKey(k, v) {
+      state[k] = v;
+      apply();
+      // Persist via host
+      try {
+        window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+      } catch (_) {}
+    }
+
+    // Wire segmented controls
+    panel.querySelectorAll('.tw-seg').forEach(seg => {
+      const key = seg.dataset.tweak;
+      seg.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-value]');
+        if (!btn) return;
+        setKey(key, btn.dataset.value);
+      });
+    });
+
+    // Wire slider
+    pulseInput.addEventListener('input', (e) => {
+      setKey('pulse', Number(e.target.value));
+    });
+
+    // Close → hide panel + tell host
+    document.getElementById('tw-close').addEventListener('click', () => {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch (_) {}
+    });
+
+    // Listen FIRST, then announce
+    window.addEventListener('message', (e) => {
+      const d = e && e.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.type === '__activate_edit_mode') {
+        panel.classList.add('open');
+        panel.setAttribute('aria-hidden', 'false');
+      } else if (d.type === '__deactivate_edit_mode') {
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    apply();
+    try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (_) {}
+  })();
+</script>
 
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
